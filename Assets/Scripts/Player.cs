@@ -15,6 +15,22 @@ public class Player : NetworkBehaviour
         rb = GetComponent<Rigidbody>();
     }
 
+    public override void OnNetworkSpawn()
+    {
+        if (IsServer)
+        {
+            NetworkManager.Singleton.OnClientDisconnectCallback += NetworkManager_OnClientDisconnectCallback;
+        }
+    }
+
+    void NetworkManager_OnClientDisconnectCallback(ulong clientId)
+    {
+        if (clientId == OwnerClientId)
+        {
+            // If client is holding something, put code to destroy it/drop it
+        }
+    }
+
     // Update is called once per frame
     void FixedUpdate()
     {
