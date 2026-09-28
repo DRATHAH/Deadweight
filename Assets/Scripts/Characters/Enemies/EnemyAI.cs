@@ -58,9 +58,8 @@ public class EnemyAI : DamageableCharacter
             {
                 //agent.SetDestination(transform.position);
                 agent.updateRotation = false;
-                if (rb.constraints != RigidbodyConstraints.FreezeRotationZ)
+                if (rb.constraints == RigidbodyConstraints.FreezeRotationZ)
                 {
-                    Debug.Log(rb.constraints != RigidbodyConstraints.FreezeRotationZ);
                     transform.LookAt(attackTarget.position);
                 }
             }
