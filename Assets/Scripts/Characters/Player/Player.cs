@@ -17,8 +17,12 @@ public class Player : DamageableCharacter
     public float attackRate = 1f;
     public float knockback = 10f;
     public ConfigurableJoint mainJoint;
+    public SphereCollider mainCol;
 
     Quaternion mainJointTargetRotation;
+    float startSlerpPosSpring = 0;
+    Vector3 startColPos = Vector3.zero;
+    SyncLimbs[] limbs;
 
     NetworkVariable<bool> canAttack = new NetworkVariable<bool>(
         true,
@@ -45,6 +49,9 @@ public class Player : DamageableCharacter
         }
 
         OnAnyPlayerSpawn?.Invoke(this, EventArgs.Empty);
+        startSlerpPosSpring = mainJoint.slerpDrive.positionSpring;
+        limbs = GetComponentsInChildren<SyncLimbs>();
+        startColPos = mainCol.center;
     }
 
     void NetworkManager_OnClientDisconnectCallback(ulong clientId)
@@ -144,15 +151,28 @@ public class Player : DamageableCharacter
 
     public override IEnumerator Recover()
     {
-        canMove.Value = false;
-        rb.freezeRotation = false;
-        yield return new WaitForSeconds(2);
-        while (Quaternion.Angle(rb.rotation, Quaternion.identity) > 0.1f)
+        JointDrive jointDrive = mainJoint.slerpDrive;
+        jointDrive.positionSpring = 0;
+        mainJoint.slerpDrive = jointDrive;
+        mainCol.center = new Vector3(0, 1, 0);
+
+        foreach(SyncLimbs limb in limbs)
         {
-            rb.MoveRotation(Quaternion.RotateTowards(rb.rotation, Quaternion.identity, 0.25f));
+            limb.MakeRagdoll();
         }
-        rb.rotation = Quaternion.identity;
-        rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+
+        canMove.Value = false;
+        //rb.freezeRotation = false;
+        yield return new WaitForSeconds(2);
+        jointDrive = mainJoint.slerpDrive;
+        jointDrive.positionSpring = startSlerpPosSpring;
+        mainJoint.slerpDrive = jointDrive;
+        foreach (SyncLimbs limb in limbs)
+        {
+            limb.MakeActiveRagdoll();
+        }
+        mainCol.center = startColPos;
+        transform.position += Vector3.up;
         canMove.Value = true;
     }
 }
