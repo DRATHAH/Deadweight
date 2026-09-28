@@ -192,7 +192,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   ShowTopMostFoldoutHeaderGroup: 1
-  playerPrefab: {fileID: 8303534231087290432, guid: 62f7073a76d3b704da0b680148adc106, type: 3}
+  playerPrefab: {fileID: 3062995289912406235, guid: 544fa1c1b1a38154da408b95e82b2c7c, type: 3}
   timerText: {fileID: 336788985}
   time: 600
   spawns:

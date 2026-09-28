@@ -13,8 +13,12 @@ public class Player : DamageableCharacter
 
     public InputActionReference moveRef;
     public float moveSpeed = 1f;
+    public float turnSpeed = 150f;
     public float attackRate = 1f;
     public float knockback = 10f;
+    public ConfigurableJoint mainJoint;
+
+    Quaternion mainJointTargetRotation;
 
     NetworkVariable<bool> canAttack = new NetworkVariable<bool>(
         true,
@@ -89,11 +93,17 @@ public class Player : DamageableCharacter
     }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)] 
-    void MoveServerRpc(Vector3 inputVector, RpcParams rpcParams = default)
+    void MoveServerRpc(Vector2 inputVector, RpcParams rpcParams = default)
     {
         float horInput = inputVector.x;
         float vertInput = inputVector.y;
         Vector3 movement = new Vector3(horInput, 0, vertInput);
+        Quaternion desiredDirection = Quaternion.LookRotation(new Vector3(movement.x * -1, 0, movement.z), transform.up);
+        mainJointTargetRotation = Quaternion.RotateTowards(mainJointTargetRotation, desiredDirection, Time.fixedDeltaTime * turnSpeed);
+        if (movement.magnitude > 0)
+        {
+            mainJoint.targetRotation = mainJointTargetRotation;
+        }
 
         rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
     }
