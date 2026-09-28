@@ -1,0 +1,148 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using Unity.Netcode;
+using UnityEngine;
+using UnityEngine.InputSystem;
+
+public class Player : DamageableCharacter
+{
+    public static event EventHandler OnAnyPlayerSpawn; // Runs whenever a player spawns
+
+    public static Player LocalInstance { get; private set; }
+
+    public InputActionReference moveRef;
+    public float moveSpeed = 1f;
+    public float attackRate = 1f;
+    public float knockback = 10f;
+
+    NetworkVariable<bool> canAttack = new NetworkVariable<bool>(
+        true,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server
+        );
+    float timeSinceAttack = 0f;
+    NetworkVariable<bool> canMove = new NetworkVariable<bool>(
+        true,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server
+        );
+
+    public override void OnNetworkSpawn() // Multiplayer's version of Start()
+    {
+        if (IsServer)
+        {
+            NetworkManager.Singleton.OnClientDisconnectCallback += NetworkManager_OnClientDisconnectCallback;
+        }
+
+        if (IsOwner)
+        {
+            LocalInstance = this;
+        }
+
+        OnAnyPlayerSpawn?.Invoke(this, EventArgs.Empty);
+    }
+
+    void NetworkManager_OnClientDisconnectCallback(ulong clientId)
+    {
+        if (clientId == OwnerClientId)
+        {
+            // If client is holding something, put code to destroy it/drop it
+        }
+    }
+
+    // Update is called once per frame
+    void FixedUpdate()
+    {
+        if (!IsOwner)
+        {
+            return;
+        }
+
+        if (canMove.Value)
+        {
+            MoveServerAuth();
+        }
+
+        if (timeSinceAttack < attackRate)
+        {
+            timeSinceAttack += Time.deltaTime;
+        }
+        else
+        {
+            ResetAttackServerRpc();
+        }
+    }
+
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    void ResetAttackServerRpc(RpcParams rpcParams = default)
+    {
+        ulong attackerId = rpcParams.Receive.SenderClientId;
+        Transform attacker = NetworkManager.Singleton.ConnectedClients[attackerId].PlayerObject.transform;
+        attacker.GetComponent<Player>().canAttack.Value = true;
+    }
+
+    private void MoveServerAuth()
+    {
+        Vector2 input = moveRef.action.ReadValue<Vector2>();
+        MoveServerRpc(input);
+    }
+
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)] 
+    void MoveServerRpc(Vector3 inputVector, RpcParams rpcParams = default)
+    {
+        float horInput = inputVector.x;
+        float vertInput = inputVector.y;
+        Vector3 movement = new Vector3(horInput, 0, vertInput);
+
+        rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
+    }
+
+    void OnCPUs(InputValue cpuButton)
+    {
+        GameManager.instance.PopulateCPUs();
+    }
+
+    void OnAttack(InputValue attackButton)
+    {
+        if (canAttack.Value)
+        {
+            timeSinceAttack = 0;
+            AttackServerRpc();
+        }
+    }
+
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    void AttackServerRpc(RpcParams rpcParams = default)
+    {
+        ulong attackerId = rpcParams.Receive.SenderClientId;
+        Transform attacker = NetworkManager.Singleton.ConnectedClients[attackerId].PlayerObject.transform;
+        attacker.GetComponent<Player>().canAttack.Value = false;
+        List<DamageableCharacter> hitTargets = new List<DamageableCharacter>();
+        Collider[] hits = Physics.OverlapSphere(attacker.position + attacker.forward * 0.5f, 2);
+        foreach (Collider hit in hits)
+        {
+            DamageableCharacter character = hit.transform.root.GetComponent<DamageableCharacter>();
+            if (character && !hitTargets.Contains(character) && character != attacker.GetComponent<DamageableCharacter>())
+            {
+                hitTargets.Add(character);
+                Vector3 hitDirection = (character.transform.position - attacker.position).normalized;
+                character.OnHit(0, hitDirection * knockback);
+            }
+        }
+    }
+
+    public override IEnumerator Recover()
+    {
+        canMove.Value = false;
+        rb.freezeRotation = false;
+        yield return new WaitForSeconds(2);
+        while (Quaternion.Angle(rb.rotation, Quaternion.identity) > 0.1f)
+        {
+            rb.MoveRotation(Quaternion.RotateTowards(rb.rotation, Quaternion.identity, 0.25f));
+        }
+        rb.rotation = Quaternion.identity;
+        rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        canMove.Value = true;
+    }
+}
