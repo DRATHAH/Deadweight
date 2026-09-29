@@ -36,6 +36,7 @@ public class DamageableCharacter : NetworkBehaviour, IDamageable
         }
     }
 
+    [Header("Base Stats")]
     public int maxHealth = 10;
     public int health = 10;
     public bool targetable = true;

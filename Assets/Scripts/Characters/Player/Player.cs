@@ -11,14 +11,17 @@ public class Player : DamageableCharacter
 
     public static Player LocalInstance { get; private set; }
 
-    public InputActionReference moveRef;
+    [Header("Player Stats")]
     public float moveSpeed = 1f;
     public float turnSpeed = 150f;
     public float attackRate = 1f;
     public float knockback = 10f;
+    [Header("References")]
+    public InputActionReference moveRef;
     public ConfigurableJoint mainJoint;
     public SphereCollider mainCol;
 
+    float timeSinceAttack = 0f;
     Quaternion mainJointTargetRotation;
     float startSlerpPosSpring = 0;
     Vector3 startColPos = Vector3.zero;
@@ -29,7 +32,6 @@ public class Player : DamageableCharacter
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server
         );
-    float timeSinceAttack = 0f;
     NetworkVariable<bool> canMove = new NetworkVariable<bool>(
         true,
         NetworkVariableReadPermission.Everyone,
@@ -162,7 +164,6 @@ public class Player : DamageableCharacter
         }
 
         canMove.Value = false;
-        //rb.freezeRotation = false;
         yield return new WaitForSeconds(2);
         jointDrive = mainJoint.slerpDrive;
         jointDrive.positionSpring = startSlerpPosSpring;
@@ -171,8 +172,8 @@ public class Player : DamageableCharacter
         {
             limb.MakeActiveRagdoll();
         }
+        transform.position += new Vector3(0, Mathf.Abs(mainCol.center.y - startColPos.y), 0);
         mainCol.center = startColPos;
-        transform.position += Vector3.up;
         canMove.Value = true;
     }
 }
