@@ -441,7 +441,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 852276675}
-  - component: {fileID: 852276674}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -449,22 +448,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &852276674
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 852276673}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d31eae0627025f14db4851f5b946f718, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Test
-  mesh: {fileID: 0}
-  vector3s:
-  - {x: 1, y: 1, z: 1}
-  test: {fileID: 1585882371}
 --- !u!4 &852276675
 Transform:
   m_ObjectHideFlags: 0

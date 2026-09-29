@@ -1,10 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.InputSystem;
 
 public class EnemyAI : DamageableCharacter
 {
@@ -71,14 +69,14 @@ public class EnemyAI : DamageableCharacter
             // Get all players connected in the game
             foreach (Transform target in players)
             {
-                if ((target.position - transform.position).sqrMagnitude <= distanceToPlayer || distanceToPlayer == -1)
+                if (target && (target.position - transform.position).sqrMagnitude <= distanceToPlayer || distanceToPlayer == -1)
                 {
                     distanceToPlayer = (target.position - transform.position).sqrMagnitude;
                     attackTarget = target;
                 }
             }
 
-            if (attackTarget && (attackTarget.position -  transform.position).magnitude >= attackRange)
+            if ((attackTarget.position -  transform.position).magnitude >= attackRange)
             {
                 Vector3 direction = (attackTarget.position - transform.position).normalized;
                 Quaternion desiredDirection = Quaternion.LookRotation(new Vector3(direction.x * -1, direction.y, direction.z), transform.up);
