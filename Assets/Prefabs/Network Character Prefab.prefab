@@ -117,7 +117,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 3350675357
+  GlobalObjectIdHash: 818521113
   InScenePlacedSourceGlobalObjectIdHash: 0
   m_InScenePlacedDisabledByDefault: 0
   DeferredDespawnTick: 0
@@ -149,11 +149,11 @@ MonoBehaviour:
   health: 10
   targetable: 1
   rb: {fileID: 1504458555394717066}
-  moveRef: {fileID: -1680190386980627800, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   moveSpeed: 2.5
   turnSpeed: 300
   attackRate: 1
   knockback: 25
+  moveRef: {fileID: -1680190386980627800, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   mainJoint: {fileID: 4113746679662682838}
   mainCol: {fileID: 7508190886654688417}
 --- !u!114 &1625710173137132026
