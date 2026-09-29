@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using Unity.Netcode;
+using UnityEditor.PackageManager;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -44,10 +45,17 @@ public class GameManager : NetworkBehaviour
 
     private void SceneManager_OnLoadEventCompleted(string sceneName, LoadSceneMode loadSceneMode, List<ulong> clientsCompleted, List<ulong> clientsTimedOut)
     {
-        foreach(ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
+        for(int i = 0; i < spawns.Count; i++)
         {
-            Transform playerTransform = Instantiate(playerPrefab);
-            playerTransform.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
+            if (i < NetworkManager.Singleton.ConnectedClientsIds.Count)
+            {
+                Transform playerTransform = Instantiate(playerPrefab, spawns[i].position, Quaternion.identity);
+                playerTransform.GetComponent<NetworkObject>().SpawnAsPlayerObject(NetworkManager.Singleton.ConnectedClientsIds[i], true);
+            }
+            else if (DeadweightNetworkManager.instance.GetCpuState())
+            {
+                SpawnCPUServerRpc(i);
+            }
         }
 
         gameStarted = true;
@@ -72,22 +80,13 @@ public class GameManager : NetworkBehaviour
         }
     }
 
-    public void PopulateCPUs()
-    {
-        SpawnCPUServerRpc();
-    }
-
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Server)]
-    void SpawnCPUServerRpc()
+    void SpawnCPUServerRpc(int spawnId)
     {
-        int cpuToSpawn = DeadweightNetworkManager.instance.maxPlayers - NetworkManager.Singleton.ConnectedClientsIds.Count;
-        for (int i = 0; i < cpuToSpawn; i++)
-        {
-            GameObject enemy = Instantiate(CPUPrefab, spawns[i].position, Quaternion.identity);
-            NetworkObject enemyObj = enemy.GetComponent<NetworkObject>();
-            enemyObj.Spawn(true);
-            CPUs.Add(enemy.GetComponent<EnemyAI>());
-        }
+        GameObject enemy = Instantiate(CPUPrefab, spawns[spawnId].position, Quaternion.identity);
+        NetworkObject enemyObj = enemy.GetComponent<NetworkObject>();
+        enemyObj.Spawn(true);
+        CPUs.Add(enemy.GetComponent<EnemyAI>());
 
         OnSpawnCPUs?.Invoke(this, EventArgs.Empty);
     }

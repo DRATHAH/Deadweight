@@ -1677,7 +1677,7 @@ NavMeshAgent:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5103512269089280658}
-  m_Enabled: 0
+  m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
   m_Speed: 2.5
@@ -1736,7 +1736,7 @@ MonoBehaviour:
   health: 10
   targetable: 1
   rb: {fileID: -3719071537785785223}
-  attackRange: 1
+  attackRange: 1.5
   attackRate: 2
   knockback: 25
   turnSpeed: 300

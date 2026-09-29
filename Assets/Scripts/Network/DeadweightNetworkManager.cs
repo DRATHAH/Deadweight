@@ -23,6 +23,8 @@ public class DeadweightNetworkManager : NetworkBehaviour
     #endregion
     public int maxPlayers = 4;
 
+    bool enabledCPUs = false;
+
     public event EventHandler OnFailedToJoinGame;
 
     public void StartHost()
@@ -59,5 +61,15 @@ public class DeadweightNetworkManager : NetworkBehaviour
     private void NetworkManager_OnClientDisconnectCallback(ulong clientId)
     {
         OnFailedToJoinGame?.Invoke(this, EventArgs.Empty);
+    }
+
+    public void EnableCpus(bool state)
+    {
+        enabledCPUs = state;
+    }
+
+    public bool GetCpuState()
+    {
+        return enabledCPUs;
     }
 }

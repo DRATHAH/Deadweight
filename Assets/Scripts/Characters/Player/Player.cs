@@ -107,19 +107,14 @@ public class Player : DamageableCharacter
         float horInput = inputVector.x;
         float vertInput = inputVector.y;
         Vector3 movement = new Vector3(horInput, 0, vertInput);
-        Quaternion desiredDirection = Quaternion.LookRotation(new Vector3(movement.x * -1, 0, movement.z), transform.up);
-        mainJointTargetRotation = Quaternion.RotateTowards(mainJointTargetRotation, desiredDirection, Time.fixedDeltaTime * turnSpeed);
         if (movement.magnitude > 0)
         {
+            Quaternion desiredDirection = Quaternion.LookRotation(new Vector3(movement.x * -1, 0, movement.z), transform.up);
+            mainJointTargetRotation = Quaternion.RotateTowards(mainJointTargetRotation, desiredDirection, Time.fixedDeltaTime * turnSpeed);
             mainJoint.targetRotation = mainJointTargetRotation;
         }
 
         rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
-    }
-
-    void OnCPUs(InputValue cpuButton)
-    {
-        GameManager.instance.PopulateCPUs();
     }
 
     void OnAttack(InputValue attackButton)

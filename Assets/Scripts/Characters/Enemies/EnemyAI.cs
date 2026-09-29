@@ -42,6 +42,7 @@ public class EnemyAI : DamageableCharacter
         limbs = GetComponentsInChildren<SyncLimbs>();
         startColPos = mainCol.center;
         startSlerpPosSpring = mainJoint.slerpDrive.positionSpring;
+        agent.updatePosition = false;
     }
 
     private void Gamemager_OnSpawnCPUs(object sender, System.EventArgs e)
@@ -72,18 +73,42 @@ public class EnemyAI : DamageableCharacter
                 if (target && (target.position - transform.position).sqrMagnitude <= distanceToPlayer || distanceToPlayer == -1)
                 {
                     distanceToPlayer = (target.position - transform.position).sqrMagnitude;
-                    attackTarget = target;
+                    NavMeshPath path = new NavMeshPath();
+                    if (agent.CalculatePath(target.position, path))
+                    {
+                        attackTarget = target;
+                    }
+                    else
+                    {
+                        attackTarget = null;
+                    }
                 }
             }
 
-            if ((attackTarget.position -  transform.position).magnitude >= attackRange)
+            if (attackTarget && (attackTarget.position -  transform.position).magnitude >= attackRange)
             {
-                Vector3 direction = (attackTarget.position - transform.position).normalized;
-                Quaternion desiredDirection = Quaternion.LookRotation(new Vector3(direction.x * -1, direction.y, direction.z), transform.up);
-                mainJointTargetRotation = Quaternion.RotateTowards(mainJointTargetRotation, desiredDirection, Time.fixedDeltaTime * turnSpeed);
-                mainJoint.targetRotation = mainJointTargetRotation;
+                NavMeshPath path = new NavMeshPath();
+                if (agent.CalculatePath(attackTarget.position, path))
+                {
+                    if (path.status == NavMeshPathStatus.PathComplete)
+                    {
+                        Vector3[] corners = path.corners;
+                        Vector3 direction = (new Vector3(corners[1].x, corners[1].y + 1, corners[1].z) - transform.position).normalized;
+                        Quaternion desiredDirection = Quaternion.LookRotation(new Vector3(direction.x * -1, 0, direction.z), transform.up);
+                        mainJointTargetRotation = Quaternion.RotateTowards(mainJointTargetRotation, desiredDirection, Time.fixedDeltaTime * turnSpeed);
+                        mainJoint.targetRotation = mainJointTargetRotation;
 
-                rb.MovePosition(rb.position + direction * agent.speed * Time.fixedDeltaTime);
+                        rb.MovePosition(rb.position + direction * agent.speed * Time.fixedDeltaTime);
+                    }
+                    else if (path.status == NavMeshPathStatus.PathPartial)
+                    {
+                        Debug.Log("Something is blocking the path");
+                    }
+                }
+                else
+                {
+                    Debug.Log("Enemy can't move there");
+                }
             }
             else
             {

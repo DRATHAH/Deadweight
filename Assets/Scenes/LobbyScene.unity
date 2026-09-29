@@ -2097,7 +2097,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DeadweightNetworkManager
   ShowTopMostFoldoutHeaderGroup: 1
-  maxPlayers: 3
+  maxPlayers: 6
+  enabledCPUs: 0
 --- !u!4 &1918648847
 Transform:
   m_ObjectHideFlags: 0

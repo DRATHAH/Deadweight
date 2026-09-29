@@ -1,10 +1,13 @@
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CharacterSelectReady : NetworkBehaviour
 {
     public static CharacterSelectReady instance {  get; private set; }
+    public Button cpuEnableButton;
+    public Button cpuDisableButton;
 
     Dictionary<ulong, bool> playersReady;
 
@@ -12,6 +15,16 @@ public class CharacterSelectReady : NetworkBehaviour
     {
         instance = this;
         playersReady = new Dictionary<ulong, bool>();
+
+        cpuEnableButton.onClick.AddListener(() =>
+        {
+            DeadweightNetworkManager.instance.EnableCpus(true);
+        });
+        cpuDisableButton.onClick.AddListener(() =>
+        {
+            DeadweightNetworkManager.instance.EnableCpus(false);
+        });
+        cpuDisableButton.gameObject.SetActive(false);
     }
 
     public void SetPlayerReady()
