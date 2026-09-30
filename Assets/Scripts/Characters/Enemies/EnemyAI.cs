@@ -7,6 +7,7 @@ using UnityEngine.AI;
 public class EnemyAI : DamageableCharacter
 {
     [Header("Enemy Stats")]
+    public int attackDmg = 1;
     public float attackRange = 2f;
     public float attackRate = 1f;
     public float knockback = 10f;
@@ -70,7 +71,7 @@ public class EnemyAI : DamageableCharacter
             // Get all players connected in the game
             foreach (Transform target in players)
             {
-                if (target && (target.position - transform.position).sqrMagnitude <= distanceToPlayer || distanceToPlayer == -1)
+                if (target && ((target.position - transform.position).sqrMagnitude <= distanceToPlayer || distanceToPlayer == -1) && target.GetComponent<DamageableCharacter>().targetable)
                 {
                     distanceToPlayer = (target.position - transform.position).sqrMagnitude;
                     NavMeshPath path = new NavMeshPath();
@@ -146,14 +147,55 @@ public class EnemyAI : DamageableCharacter
                 {
                     hitTargets.Add(character);
                     Vector3 hitDirection = (character.transform.position - transform.position).normalized;
-                    character.OnHit(0, hitDirection * knockback);
+                    character.OnHit(attackDmg, hitDirection * knockback);
                 }
             }
         }
     }
 
+    [Rpc(SendTo.ClientsAndHost)]
+    public override void OnHitClientRpc(int newHealth)
+    {
+        Health = newHealth;
+        if (targetable)
+        {
+            GetComponent<HealthPopup>().TriggerPopup(health, maxHealth);
+        }
+    }
+
     public override IEnumerator Recover()
     {
+        canAttack.Value = false;
+        JointDrive jointDrive = mainJoint.slerpDrive;
+        jointDrive.positionSpring = 0;
+        mainJoint.slerpDrive = jointDrive;
+        mainCol.center = new Vector3(0, 1, 0);
+        foreach (SyncLimbs limb in limbs)
+        {
+            limb.MakeRagdoll();
+        }
+
+        yield return new WaitForSeconds(2);
+        
+        if (targetable)
+        {
+            jointDrive = mainJoint.slerpDrive;
+            jointDrive.positionSpring = startSlerpPosSpring;
+            mainJoint.slerpDrive = jointDrive;
+            foreach (SyncLimbs limb in limbs)
+            {
+                limb.MakeActiveRagdoll();
+            }
+            transform.position += new Vector3(0, Mathf.Abs(mainCol.center.y - startColPos.y), 0);
+            mainCol.center = startColPos;
+            canMove.Value = true;
+        }
+    }
+
+    public override void RemoveCharacter()
+    {
+        canMove.Value = false;
+        canAttack.Value = false;
         JointDrive jointDrive = mainJoint.slerpDrive;
         jointDrive.positionSpring = 0;
         mainJoint.slerpDrive = jointDrive;
@@ -163,16 +205,5 @@ public class EnemyAI : DamageableCharacter
         {
             limb.MakeRagdoll();
         }
-
-        yield return new WaitForSeconds(2);
-        jointDrive = mainJoint.slerpDrive;
-        jointDrive.positionSpring = startSlerpPosSpring;
-        mainJoint.slerpDrive = jointDrive;
-        foreach (SyncLimbs limb in limbs)
-        {
-            limb.MakeActiveRagdoll();
-        }
-        transform.position += new Vector3(0, Mathf.Abs(mainCol.center.y - startColPos.y), 0);
-        mainCol.center = startColPos;
     }
 }

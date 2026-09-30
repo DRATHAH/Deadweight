@@ -12,6 +12,7 @@ public class Player : DamageableCharacter
     public static Player LocalInstance { get; private set; }
 
     [Header("Player Stats")]
+    public int attackDmg = 1;
     public float moveSpeed = 1f;
     public float turnSpeed = 150f;
     public float attackRate = 1f;
@@ -141,10 +142,21 @@ public class Player : DamageableCharacter
             {
                 hitTargets.Add(character);
                 Vector3 hitDirection = (character.transform.position - attacker.position).normalized;
-                character.OnHit(0, hitDirection * knockback);
+                character.OnHit(attackDmg, hitDirection * knockback);
             }
         }
     }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    public override void OnHitClientRpc(int newHealth)
+    {
+        Health = newHealth;
+        if (targetable)
+        {
+            GetComponent<HealthPopup>().TriggerPopup(health, maxHealth);
+        }
+    }
+
 
     public override IEnumerator Recover()
     {
@@ -152,23 +164,41 @@ public class Player : DamageableCharacter
         jointDrive.positionSpring = 0;
         mainJoint.slerpDrive = jointDrive;
         mainCol.center = new Vector3(0, 1, 0);
-
         foreach(SyncLimbs limb in limbs)
         {
             limb.MakeRagdoll();
         }
 
         canMove.Value = false;
+
         yield return new WaitForSeconds(2);
-        jointDrive = mainJoint.slerpDrive;
-        jointDrive.positionSpring = startSlerpPosSpring;
+        if (targetable)
+        {
+            jointDrive = mainJoint.slerpDrive;
+            jointDrive.positionSpring = startSlerpPosSpring;
+            mainJoint.slerpDrive = jointDrive;
+            foreach (SyncLimbs limb in limbs)
+            {
+                limb.MakeActiveRagdoll();
+            }
+            transform.position += new Vector3(0, Mathf.Abs(mainCol.center.y - startColPos.y), 0);
+            mainCol.center = startColPos;
+            canMove.Value = true;
+        }
+    }
+
+    public override void RemoveCharacter()
+    {
+        canMove.Value = false;
+        canAttack.Value = false;
+        JointDrive jointDrive = mainJoint.slerpDrive;
+        jointDrive.positionSpring = 0;
         mainJoint.slerpDrive = jointDrive;
+        mainCol.center = new Vector3(0, 1, 0);
+
         foreach (SyncLimbs limb in limbs)
         {
-            limb.MakeActiveRagdoll();
+            limb.MakeRagdoll();
         }
-        transform.position += new Vector3(0, Mathf.Abs(mainCol.center.y - startColPos.y), 0);
-        mainCol.center = startColPos;
-        canMove.Value = true;
     }
 }

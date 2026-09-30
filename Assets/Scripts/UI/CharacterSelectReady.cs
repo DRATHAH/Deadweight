@@ -24,7 +24,23 @@ public class CharacterSelectReady : NetworkBehaviour
         {
             DeadweightNetworkManager.instance.EnableCpus(false);
         });
+
+        cpuEnableButton.gameObject.SetActive(false);
         cpuDisableButton.gameObject.SetActive(false);
+    }
+
+    private void Start()
+    {
+        SetLobbyButtonsServerRpc();
+    }
+
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    void SetLobbyButtonsServerRpc()
+    {
+        if (IsHost)
+        {
+            cpuEnableButton.gameObject.SetActive(true);
+        }
     }
 
     public void SetPlayerReady()

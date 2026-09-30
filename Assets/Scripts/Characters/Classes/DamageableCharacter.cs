@@ -47,6 +47,14 @@ public class DamageableCharacter : NetworkBehaviour, IDamageable
         Health -= damage;
         rb.AddForce(force, ForceMode.Impulse);
         StartCoroutine(Recover());
+        OnHitClientRpc(Health);
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    public virtual void OnHitClientRpc(int newHealth)
+    {
+        // LEAVE EMPTY OR IT WILL BREAK GAME IDK WHY
+        // Sends data back to clients to update (also allows us to do VFX)
     }
 
     public virtual IEnumerator Recover()
@@ -64,6 +72,7 @@ public class DamageableCharacter : NetworkBehaviour, IDamageable
 
     public virtual void RemoveCharacter()
     {
+        Targetable = false;
         Destroy(gameObject);
     }
 }
