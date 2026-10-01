@@ -20,7 +20,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: M_Brown
+  m_Name: M_Yard
   m_Shader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -129,8 +129,8 @@ Material:
     - _XRMotionVectorsPass: 1
     - _ZWrite: 1
     m_Colors:
-    - _BaseColor: {r: 0.6792453, g: 0.455649, b: 0.26593092, a: 1}
-    - _Color: {r: 0.6792453, g: 0.4556489, b: 0.26593086, a: 1}
+    - _BaseColor: {r: 0.745283, g: 0.5372667, b: 0.36209506, a: 1}
+    - _Color: {r: 0.745283, g: 0.5372666, b: 0.36209503, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []
