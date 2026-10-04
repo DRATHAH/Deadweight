@@ -61,6 +61,13 @@ public class Player : DamageableCharacter
     {
         if (clientId == OwnerClientId)
         {
+            foreach(GameObject chain in GetComponent<ChainLink>().connectedChains)
+            {
+                if (chain != null)
+                {
+                    Destroy(chain);
+                }
+            }
             // If client is holding something, put code to destroy it/drop it
         }
     }

@@ -39,14 +39,14 @@ public class EnemyAI : DamageableCharacter
 
     public override void OnNetworkSpawn()
     {
-        GameManager.instance.OnSpawnCPUs += Gamemager_OnSpawnCPUs;
+        GameManager.instance.OnSpawnCPUs += GameManager_OnSpawnCPUs;
         limbs = GetComponentsInChildren<SyncLimbs>();
         startColPos = mainCol.center;
         startSlerpPosSpring = mainJoint.slerpDrive.positionSpring;
         agent.updatePosition = false;
     }
 
-    private void Gamemager_OnSpawnCPUs(object sender, System.EventArgs e)
+    private void GameManager_OnSpawnCPUs(object sender, System.EventArgs e)
     {
         foreach (NetworkClient client in NetworkManager.Singleton.ConnectedClientsList)
         {

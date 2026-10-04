@@ -34,7 +34,9 @@ public class GameManager : NetworkBehaviour
     public float minDistance = 10f;
 
     [Header("Player and Game States")]
-    public Transform playerPrefab; 
+    public Transform playerPrefab;
+    public GameObject chain;
+    public int chainAmount = 2;
     public TMP_Text timerText;
     public float time = 60;
     public List<Transform> spawns;
@@ -43,6 +45,7 @@ public class GameManager : NetworkBehaviour
     public List<GameObject> gamePlayers = new List<GameObject>();
 
     bool gameStarted = false;
+    ConnectConfigJoints prevChain;
 
     public override void OnNetworkSpawn()
     {
@@ -54,7 +57,7 @@ public class GameManager : NetworkBehaviour
 
     private void SceneManager_OnLoadEventCompleted(string sceneName, LoadSceneMode loadSceneMode, List<ulong> clientsCompleted, List<ulong> clientsTimedOut)
     {
-        for(int i = 0; i < spawns.Count; i++)
+        for (int i = 0; i < spawns.Count; i++)
         {
             if (i < NetworkManager.Singleton.ConnectedClientsIds.Count)
             {
@@ -63,14 +66,91 @@ public class GameManager : NetworkBehaviour
             }
             else if (DeadweightNetworkManager.instance.GetCpuState())
             {
-                SpawnCPUServerRpc(i);
+                GameObject enemy = Instantiate(CPUPrefab, spawns[i].position, Quaternion.identity);
+                NetworkObject enemyObj = enemy.GetComponent<NetworkObject>();
+                enemyObj.Spawn(true);
+                CPUs.Add(enemy.GetComponent<EnemyAI>());
+                gamePlayers.Add(enemy);
             }
         }
+
+        OnSpawnCPUs?.Invoke(this, EventArgs.Empty);
 
         foreach (ulong id in NetworkManager.Singleton.ConnectedClientsIds)
         {
             gamePlayers.Add(NetworkManager.Singleton.ConnectedClients[id].PlayerObject.gameObject);
         }
+        foreach(GameObject player in gamePlayers)
+        {
+            UpdatePlayerListClientRpc(player.GetComponent<NetworkObject>().NetworkObjectId);
+        }
+
+        for (int i = 0; i < gamePlayers.Count; i++)
+        {
+            if (i + 1 < gamePlayers.Count)
+            {
+                gamePlayers[i].GetComponent<ChainLink>().InitializeChain(gamePlayers[i + 1].transform);
+            }
+            else if (gamePlayers.Count > 1)
+            {
+                gamePlayers[i].GetComponent<ChainLink>().InitializeChain(gamePlayers[0].transform);
+            }
+        }
+
+        if (gamePlayers.Count > 1)
+        {
+            for (int i = 0; i < gamePlayers.Count; i++)
+            {
+                Transform playerA = gamePlayers[i].transform.GetComponent<ChainLink>().anchors[1].transform;
+                Transform playerB;
+
+                if (i + 1 >= gamePlayers.Count)
+                {
+                    playerB = gamePlayers[0].transform.GetComponent<ChainLink>().anchors[0].transform;
+                }
+                else
+                {
+                    playerB = gamePlayers[i + 1].transform.GetComponent<ChainLink>().anchors[0].transform;
+                }
+                float distBetweenSpawns = (playerB.position - playerA.position).magnitude;
+                float chainNum = (distBetweenSpawns / 1.8f) + .5f;
+                UpdateChainClientRpc(distBetweenSpawns, i);
+                for (int c = 0; c < (int)chainNum; c++)
+                {
+                    Vector3 direction = (playerB.transform.position - playerA.transform.position).normalized;
+                    Quaternion rotation = Quaternion.LookRotation(direction) * Quaternion.Euler(-90f, 0f, 0f);
+                    Vector3 spawnPos = Vector3.zero;
+                    if (prevChain == null)
+                    {
+                        spawnPos = playerA.position;
+                    }
+                    else
+                    {
+                        spawnPos = prevChain.chainEnd.position;
+                    }
+                    
+                    GameObject newChain = Instantiate(chain, spawnPos, rotation);
+                    playerA.parent.GetComponent<ChainLink>().connectedChains.Add(newChain);
+                    playerB.parent.GetComponent<ChainLink>().connectedChains.Add(newChain);
+                    ConnectConfigJoints chainJoints = newChain.GetComponent<ConnectConfigJoints>();
+
+                    if (prevChain == null)
+                    {
+                        chainJoints.InitializeChain(playerA.GetComponent<Rigidbody>());
+                    }
+                    else
+                    {
+                        chainJoints.InitializeChain(prevChain.chainEnd);
+                    }
+
+                    prevChain = chainJoints;
+                    newChain.GetComponent<NetworkObject>().Spawn();
+                }
+                playerB.GetComponent<ConfigurableJoint>().connectedBody = prevChain.chainEnd;
+                prevChain = null;
+            }
+        }
+
 
         gameStarted = true;
     }
@@ -92,18 +172,6 @@ public class GameManager : NetworkBehaviour
                 UpdateCamera();
             }
         }
-    }
-
-    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Server)]
-    void SpawnCPUServerRpc(int spawnId)
-    {
-        GameObject enemy = Instantiate(CPUPrefab, spawns[spawnId].position, Quaternion.identity);
-        NetworkObject enemyObj = enemy.GetComponent<NetworkObject>();
-        enemyObj.Spawn(true);
-        CPUs.Add(enemy.GetComponent<EnemyAI>());
-        gamePlayers.Add(enemy);
-
-        OnSpawnCPUs?.Invoke(this, EventArgs.Empty);
     }
 
     [Rpc(SendTo.ClientsAndHost)]
@@ -172,11 +240,11 @@ public class GameManager : NetworkBehaviour
         float[] yValues = { -halfHeight, halfHeight };
         float[] zValues = { -halfDepth, halfDepth };
 
-        foreach(float x in xValues)
+        foreach (float x in xValues)
         {
-            foreach(float y in yValues)
+            foreach (float y in yValues)
             {
-                foreach(float z in zValues)
+                foreach (float z in zValues)
                 {
                     float horizontalDistance = Mathf.Abs(x) / horizontalTan - z;
                     float verticalDistance = Mathf.Abs(y) / verticalTan - z;
@@ -196,5 +264,20 @@ public class GameManager : NetworkBehaviour
     void UpdateCameraClientRpc(Vector3 camTarget)
     {
         mainCam.transform.position = Vector3.Lerp(mainCam.transform.position, camTarget, cameraSmooth);
+    }
+
+    [Rpc(SendTo.NotServer)]
+    void UpdatePlayerListClientRpc(ulong playerId)
+    {
+        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(playerId, out NetworkObject networkObject))
+        {
+            gamePlayers.Add(networkObject.gameObject);
+        }
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    void UpdateChainClientRpc(float chainLength, int playerId)
+    {
+        gamePlayers[playerId].transform.GetComponent<ChainLink>().SetDistance(chainLength);
     }
 }
