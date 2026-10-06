@@ -278,6 +278,6 @@ public class GameManager : NetworkBehaviour
     [Rpc(SendTo.ClientsAndHost)]
     void UpdateChainClientRpc(float chainLength, int playerId)
     {
-        gamePlayers[playerId].transform.GetComponent<ChainLink>().SetDistance(chainLength);
+        gamePlayers[playerId].transform.GetComponent<ChainLink>().SetDistance(chainAmount);
     }
 }

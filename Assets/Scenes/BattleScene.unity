@@ -310,7 +310,7 @@ MonoBehaviour:
   minDistance: 15
   playerPrefab: {fileID: 3062995289912406235, guid: 544fa1c1b1a38154da408b95e82b2c7c, type: 3}
   chain: {fileID: 2832729993579876332, guid: 56f8a9aa49dcc0142abd849412a04066, type: 3}
-  chainAmount: 10
+  chainAmount: 15
   timerText: {fileID: 336788985}
   time: 600
   spawns:

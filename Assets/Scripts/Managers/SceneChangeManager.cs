@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Networking;
 using Unity.Netcode;
+using System;
 
 public class SceneChangeManager : MonoBehaviour
 {
@@ -24,7 +25,8 @@ public class SceneChangeManager : MonoBehaviour
     {
         LobbyScene,
         BattleScene,
-        GameSelectScene
+        GameSelectScene,
+        ResultsScene
     }
 
     Scene targetScene;
@@ -33,6 +35,19 @@ public class SceneChangeManager : MonoBehaviour
     {
         targetScene = scene;
         StartCoroutine(LoadSceneOperation());
+    }
+
+    public void LoadScene(string scene)
+    {
+        if (Enum.TryParse<Scene>(scene, out Scene sceneEnum))
+        {
+            targetScene = sceneEnum;
+            StartCoroutine(LoadSceneOperation());
+        }
+        else
+        {
+            Debug.LogWarning("Scene name not found");
+        }
     }
 
     IEnumerator LoadSceneOperation()
