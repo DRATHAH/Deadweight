@@ -70,6 +70,11 @@ public class Player : DamageableCharacter
             }
             // If client is holding something, put code to destroy it/drop it
         }
+
+        if (IsServer)
+        {
+            NetworkManager.Singleton.OnClientDisconnectCallback -= NetworkManager_OnClientDisconnectCallback;
+        }
     }
 
     // Update is called once per frame

@@ -46,12 +46,21 @@ public class GameManager : NetworkBehaviour
 
     bool gameStarted = false;
     ConnectConfigJoints prevChain;
+    bool gameOver = false;
 
     public override void OnNetworkSpawn()
     {
         if (IsServer)
         {
             NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += SceneManager_OnLoadEventCompleted;
+        }
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        if (IsServer)
+        {
+            NetworkManager.Singleton.SceneManager.OnLoadEventCompleted -= SceneManager_OnLoadEventCompleted;
         }
     }
 
@@ -166,7 +175,7 @@ public class GameManager : NetworkBehaviour
         if (gameStarted)
         {
             time -= Time.deltaTime;
-            if (NetworkManager.Singleton)
+            if (NetworkManager.Singleton && !gameOver)
             {
                 UpdateTimerClientRpc(time);
                 UpdateCamera();
@@ -177,6 +186,11 @@ public class GameManager : NetworkBehaviour
     [Rpc(SendTo.ClientsAndHost)]
     void UpdateTimerClientRpc(float t)
     {
+        if (t <= 0)
+        {
+            gameOver = true;
+            EndGame();
+        }
         // Format string in mm:ss format
         TimeSpan timeFormat = TimeSpan.FromSeconds(t);
         timerText.text = timeFormat.ToString(@"m\:ss");
@@ -258,6 +272,11 @@ public class GameManager : NetworkBehaviour
         Vector3 desiredPos = worldCenter + (-mainCam.transform.forward * requiredDistance);
 
         UpdateCameraClientRpc(desiredPos);
+    }
+
+    public void EndGame()
+    {
+        SceneChangeManager.instance.LoadScene(SceneChangeManager.Scene.ResultsScene);
     }
 
     [Rpc(SendTo.ClientsAndHost)]
