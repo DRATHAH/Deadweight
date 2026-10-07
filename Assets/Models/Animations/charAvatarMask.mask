@@ -1,0 +1,61 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!319 &31900000
+AvatarMask:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: charAvatarMask
+  m_Mask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+  m_Elements:
+  - m_Path: 
+    m_Weight: 1
+  - m_Path: Character
+    m_Weight: 1
+  - m_Path: Character/Belt
+    m_Weight: 1
+  - m_Path: Character/Character_high
+    m_Weight: 1
+  - m_Path: pelvis
+    m_Weight: 1
+  - m_Path: pelvis/l_thigh
+    m_Weight: 0
+  - m_Path: pelvis/l_thigh/l_calve
+    m_Weight: 0
+  - m_Path: pelvis/l_thigh/l_calve/l_foot
+    m_Weight: 0
+  - m_Path: pelvis/l_thigh/l_calve/l_foot/l_toe
+    m_Weight: 0
+  - m_Path: pelvis/r_thigh
+    m_Weight: 0
+  - m_Path: pelvis/r_thigh/r_calve
+    m_Weight: 0
+  - m_Path: pelvis/r_thigh/r_calve/r_foot
+    m_Weight: 0
+  - m_Path: pelvis/r_thigh/r_calve/r_foot/r_toe
+    m_Weight: 0
+  - m_Path: pelvis/spine1
+    m_Weight: 1
+  - m_Path: pelvis/spine1/spine2
+    m_Weight: 1
+  - m_Path: pelvis/spine1/spine2/spine3
+    m_Weight: 1
+  - m_Path: pelvis/spine1/spine2/spine3/spine4
+    m_Weight: 1
+  - m_Path: pelvis/spine1/spine2/spine3/spine4/l_shoulder
+    m_Weight: 1
+  - m_Path: pelvis/spine1/spine2/spine3/spine4/l_shoulder/l_elbow
+    m_Weight: 1
+  - m_Path: pelvis/spine1/spine2/spine3/spine4/l_shoulder/l_elbow/l_hand
+    m_Weight: 1
+  - m_Path: pelvis/spine1/spine2/spine3/spine4/neck
+    m_Weight: 1
+  - m_Path: pelvis/spine1/spine2/spine3/spine4/neck/head
+    m_Weight: 1
+  - m_Path: pelvis/spine1/spine2/spine3/spine4/r_shoulder
+    m_Weight: 1
+  - m_Path: pelvis/spine1/spine2/spine3/spine4/r_shoulder/r_elbow
+    m_Weight: 1
+  - m_Path: pelvis/spine1/spine2/spine3/spine4/r_shoulder/r_elbow/r_hand
+    m_Weight: 1

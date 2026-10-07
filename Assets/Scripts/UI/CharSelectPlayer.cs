@@ -46,4 +46,10 @@ public class CharSelectPlayer : MonoBehaviour
     {
         gameObject.SetActive(false);
     }
+
+    private void OnDestroy()
+    {
+        DeadweightNetworkManager.instance.OnPlayerDataNetworkListChanged -= DeadweightNetworkManager_OnPlayerDataNetworkListChanged;
+        CharacterSelectReady.instance.OnReadyChanged -= CharacterSelectReady_OnReadyChanged;
+    }
 }
