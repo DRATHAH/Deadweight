@@ -15,10 +15,13 @@ public class Player : DamageableCharacter
     public int attackDmg = 1;
     public float moveSpeed = 1f;
     public float turnSpeed = 150f;
+    public float jumpForce = 10f;
     public float attackRate = 1f;
     public float knockback = 10f;
     [Header("References")]
+    public LayerMask groundLayer;
     public InputActionReference moveRef;
+    public InputActionReference jumpRef;
     public ConfigurableJoint mainJoint;
     public SphereCollider mainCol;
 
@@ -108,6 +111,14 @@ public class Player : DamageableCharacter
         attacker.GetComponent<Player>().canAttack.Value = true;
     }
 
+    void OnJump(InputValue jumpButton)
+    {
+        if (IsGrounded())
+        {
+            JumpServerRpc(jumpForce);
+        }
+    }
+
     private void MoveServerAuth()
     {
         Vector2 input = moveRef.action.ReadValue<Vector2>();
@@ -128,6 +139,22 @@ public class Player : DamageableCharacter
         }
 
         rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
+    }
+
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    void JumpServerRpc(float jump)
+    {
+        rb.AddForce(Vector3.up * jump, ForceMode.Impulse);
+    }
+
+    bool IsGrounded()
+    {
+        Vector3 start = mainCol.transform.TransformPoint(mainCol.center);
+        float rayLength = mainCol.radius + 0.1f;
+        Debug.DrawLine(start, start + (Vector3.down * rayLength), Color.red, 10);
+        bool hasHit = Physics.SphereCast(start, mainCol.radius / 2, Vector3.down, out RaycastHit hitInfo, rayLength, groundLayer, QueryTriggerInteraction.Ignore);
+        Debug.Log(hasHit);
+        return hasHit;
     }
 
     void OnAttack(InputValue attackButton)
