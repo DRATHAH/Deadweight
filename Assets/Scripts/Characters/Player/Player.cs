@@ -20,6 +20,7 @@ public class Player : DamageableCharacter
     public float knockback = 10f;
     [Header("References")]
     public LayerMask groundLayer;
+    public Animator animator;
     public InputActionReference moveRef;
     public InputActionReference jumpRef;
     public ConfigurableJoint mainJoint;
@@ -58,6 +59,7 @@ public class Player : DamageableCharacter
         startSlerpPosSpring = mainJoint.slerpDrive.positionSpring;
         limbs = GetComponentsInChildren<SyncLimbs>();
         startColPos = mainCol.center;
+        animator.SetLayerWeight(1, 1f); // Sets the attack layer
     }
 
     void NetworkManager_OnClientDisconnectCallback(ulong clientId)
@@ -136,9 +138,17 @@ public class Player : DamageableCharacter
             Quaternion desiredDirection = Quaternion.LookRotation(new Vector3(movement.x * -1, 0, movement.z), transform.up);
             mainJointTargetRotation = Quaternion.RotateTowards(mainJointTargetRotation, desiredDirection, Time.fixedDeltaTime * turnSpeed);
             mainJoint.targetRotation = mainJointTargetRotation;
+
+            float speed = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z).magnitude;
+            animator.SetFloat("Speed", 1);
+        }
+        else
+        {
+            float speed = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z).magnitude;
+            animator.SetFloat("Speed", speed / moveSpeed);
         }
 
-        rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
+            rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
     }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
@@ -150,7 +160,7 @@ public class Player : DamageableCharacter
     bool IsGrounded()
     {
         Vector3 start = mainCol.transform.TransformPoint(mainCol.center);
-        float rayLength = mainCol.radius + 0.1f;
+        float rayLength = mainCol.radius + 0.025f;
         Debug.DrawLine(start, start + (Vector3.down * rayLength), Color.red, 10);
         bool hasHit = Physics.SphereCast(start, mainCol.radius / 2, Vector3.down, out RaycastHit hitInfo, rayLength, groundLayer, QueryTriggerInteraction.Ignore);
         Debug.Log(hasHit);
@@ -171,6 +181,7 @@ public class Player : DamageableCharacter
     {
         ulong attackerId = rpcParams.Receive.SenderClientId;
         Transform attacker = NetworkManager.Singleton.ConnectedClients[attackerId].PlayerObject.transform;
+        attacker.GetComponent<Animator>().SetTrigger("Attack");
         attacker.GetComponent<Player>().canAttack.Value = false;
         List<DamageableCharacter> hitTargets = new List<DamageableCharacter>();
         Collider[] hits = Physics.OverlapSphere(attacker.position + attacker.forward * 0.5f, 2);
