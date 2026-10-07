@@ -200,6 +200,7 @@ public class EnemyAI : DamageableCharacter
         jointDrive.positionSpring = 0;
         mainJoint.slerpDrive = jointDrive;
         mainCol.center = new Vector3(0, 1, 0);
+        rb.mass = 0.1f;
 
         foreach (SyncLimbs limb in limbs)
         {

@@ -35,7 +35,7 @@ public class SceneChangeManager : MonoBehaviour
     public void LoadScene(Scene scene)
     {
         targetScene = scene;
-        StartCoroutine(LoadSceneOperation());
+        StartCoroutine(LoadSceneOperation(true));
     }
 
     public void LoadScene(string scene)
@@ -43,7 +43,7 @@ public class SceneChangeManager : MonoBehaviour
         if (Enum.TryParse<Scene>(scene, out Scene sceneEnum))
         {
             targetScene = sceneEnum;
-            StartCoroutine(LoadSceneOperation());
+            StartCoroutine(LoadSceneOperation(true));
         }
         else
         {
@@ -51,13 +51,30 @@ public class SceneChangeManager : MonoBehaviour
         }
     }
 
-    IEnumerator LoadSceneOperation()
+    public void Load(Scene scene)
+    {
+        targetScene = scene;
+        StartCoroutine(LoadSceneOperation(false));
+    }
+
+    IEnumerator LoadSceneOperation(bool multiplayer)
     {
         // Start transition animation
 
         // Wait for transition to finish
         yield return new WaitForSeconds(.5f);
-
-        NetworkManager.Singleton.SceneManager.LoadScene(targetScene.ToString(), LoadSceneMode.Single); 
+        if (multiplayer)
+        {
+            NetworkManager.Singleton.SceneManager.LoadScene(targetScene.ToString(), LoadSceneMode.Single);
+        }
+        else
+        {
+            AsyncOperation operation = SceneManager.LoadSceneAsync(targetScene.ToString(), LoadSceneMode.Single);
+            while (!operation.isDone)
+            {
+                // Progress bar here
+                yield return null;
+            }
+        }
     }
 }

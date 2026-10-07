@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+
 using UnityEngine.UI;
 
 public class CharacterSelectReady : NetworkBehaviour
@@ -9,6 +11,7 @@ public class CharacterSelectReady : NetworkBehaviour
     public Button cpuEnableButton;
     public Button cpuDisableButton;
 
+    public event EventHandler OnReadyChanged;
     Dictionary<ulong, bool> playersReady;
 
     private void Awake()
@@ -51,6 +54,7 @@ public class CharacterSelectReady : NetworkBehaviour
     [Rpc(SendTo.Server,InvokePermission = RpcInvokePermission.Everyone)]
     void SetPlayerReadyServerRpc(RpcParams rpcParams = default)
     {
+        SetPlayerReadyClientRpc(rpcParams.Receive.SenderClientId);
         playersReady[rpcParams.Receive.SenderClientId] = true;
         bool allClientsReady = true;
         foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
@@ -67,5 +71,17 @@ public class CharacterSelectReady : NetworkBehaviour
         {
             SceneChangeManager.instance.LoadScene(SceneChangeManager.Scene.BattleScene);
         }
+    }
+
+    [Rpc(SendTo.ClientsAndHost,InvokePermission =RpcInvokePermission.Server)]
+    void SetPlayerReadyClientRpc(ulong clientId)
+    {
+        playersReady[clientId] = true;
+        OnReadyChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    public bool IsPlayerReady(ulong clientId)
+    {
+        return playersReady.ContainsKey(clientId) && playersReady[clientId];
     }
 }

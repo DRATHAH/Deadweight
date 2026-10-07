@@ -72,7 +72,6 @@ public class DamageableCharacter : NetworkBehaviour, IDamageable
 
     public virtual void RemoveCharacter()
     {
-        Targetable = false;
         Destroy(gameObject);
     }
 }
