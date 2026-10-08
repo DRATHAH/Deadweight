@@ -126,7 +126,7 @@ public class EnemyAI : DamageableCharacter
             {
                 timeSinceAttack += Time.deltaTime;
             }
-            else
+            else if (IsServer)
             {
                 canAttack.Value = true;
             }

@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class CharacterSelectReady : MonoBehaviour
+public class CharacterSelectReady : NetworkBehaviour
 {
     public static CharacterSelectReady instance {  get; private set; }
     public Button cpuEnableButton;
@@ -32,15 +33,27 @@ public class CharacterSelectReady : MonoBehaviour
         cpuDisableButton.gameObject.SetActive(false);
     }
 
+    void Start()
+    {
+        NetworkManager.Singleton.SceneManager.OnLoadComplete += SetLobbyButtons;
+        StartCoroutine(CpuButton());
+    }
+
     private void SetLobbyButtons(ulong clientId, string sceneName, LoadSceneMode loadSceneMode)
     {
+        SetLobbyButtonsServerRpc();
+    }
+
+    IEnumerator CpuButton()
+    {
+        yield return new WaitForSeconds(1);
         SetLobbyButtonsServerRpc();
     }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     void SetLobbyButtonsServerRpc()
     {
-        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsHost)
+        if (NetworkManager.Singleton != null && IsHost)
         {
             cpuEnableButton.gameObject.SetActive(true);
         }
@@ -86,7 +99,7 @@ public class CharacterSelectReady : MonoBehaviour
         return playersReady.ContainsKey(clientId) && playersReady[clientId];
     }
 
-    void OnDestroy()
+    public override void OnDestroy()
     {
         NetworkManager.Singleton.SceneManager.OnLoadComplete -= SetLobbyButtons;
     }
