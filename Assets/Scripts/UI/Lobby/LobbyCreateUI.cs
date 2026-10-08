@@ -29,7 +29,7 @@ public class LobbyCreateUI : MonoBehaviour
 
     private void Start()
     {
-        gameObject.SetActive(false);
+        Hide();
     }
 
     public void Show()
