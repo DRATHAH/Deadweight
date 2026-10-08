@@ -11,11 +11,11 @@ public class PlayerAnimated : MonoBehaviour
 
     void StartWeaponTrace()
     {
-        weapon.StartWeaponTrace();
+        //weapon.StartWeaponTrace();
     }
 
     void EndWeaponTrace()
     {
-        weapon.EndWeaponTrace();
+        //weapon.EndWeaponTrace();
     }
 }

@@ -201,7 +201,7 @@ public class Player : DamageableCharacter
             {
                 hitTargets.Add(character);
                 Vector3 hitDirection = (character.transform.position - attacker.position).normalized;
-                //character.OnHit(attackDmg, hitDirection * knockback);
+                character.OnHit(equippedWeapon.dmg, hitDirection * equippedWeapon.knockbackStrength);
             }
         }
     }
