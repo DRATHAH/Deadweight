@@ -12,13 +12,13 @@ public class Player : DamageableCharacter
     public static Player LocalInstance { get; private set; }
 
     [Header("Player Stats")]
-    public int attackDmg = 1;
+    public Weapon equippedWeapon;
     public float moveSpeed = 1f;
     public float turnSpeed = 150f;
     public float jumpForce = 10f;
     public float attackRate = 1f;
-    public float knockback = 10f;
     [Header("References")]
+    public Transform weaponPoint;
     public LayerMask groundLayer;
     public Animator animator;
     public InputActionReference moveRef;
@@ -192,7 +192,7 @@ public class Player : DamageableCharacter
             {
                 hitTargets.Add(character);
                 Vector3 hitDirection = (character.transform.position - attacker.position).normalized;
-                character.OnHit(attackDmg, hitDirection * knockback);
+                //character.OnHit(attackDmg, hitDirection * knockback);
             }
         }
     }
