@@ -70,7 +70,7 @@ public class CharacterSelectReady : NetworkBehaviour
         if (allClientsReady)
         {
             DeadweightLobby.instance.DeleteLobby();
-            SceneChangeManager.instance.LoadScene(SceneChangeManager.Scene.BattleScene);
+            SceneChangeManager.instance.LoadScene(SceneChangeManager.Scene.LevelOne);
         }
     }
 

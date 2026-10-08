@@ -39,7 +39,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3672796760028381317}
@@ -157,7 +157,7 @@ MonoBehaviour:
   targetable: 1
   rb: {fileID: 1504458555394717066}
   equippedWeapon: {fileID: 11400000, guid: 289041ba28213c74fbfc1c5bc1dd5bb5, type: 2}
-  moveSpeed: 2.5
+  moveSpeed: 5
   turnSpeed: 300
   jumpForce: 12.5
   attackRate: 1

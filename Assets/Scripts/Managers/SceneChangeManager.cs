@@ -27,7 +27,8 @@ public class SceneChangeManager : MonoBehaviour
         BattleScene,
         GameSelectScene,
         ResultsScene,
-        MainMenu
+        MainMenu,
+        LevelOne
     }
 
     Scene targetScene;
