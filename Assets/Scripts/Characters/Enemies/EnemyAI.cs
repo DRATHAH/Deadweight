@@ -77,6 +77,7 @@ public class EnemyAI : DamageableCharacter
                     NavMeshPath path = new NavMeshPath();
                     if (agent.CalculatePath(target.position, path))
                     {
+                        Debug.DrawLine(transform.position, path.corners[path.corners.Length-1]);
                         attackTarget = target;
                     }
                     else

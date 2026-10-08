@@ -64,7 +64,7 @@ public class SceneChangeManager : MonoBehaviour
 
         // Wait for transition to finish
         yield return new WaitForSeconds(.5f);
-        if (multiplayer && NetworkManager.Singleton)
+        if (multiplayer && NetworkManager.Singleton.SceneManager != null)
         {
             NetworkManager.Singleton.SceneManager.LoadScene(targetScene.ToString(), LoadSceneMode.Single);
         }

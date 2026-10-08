@@ -16,7 +16,7 @@ public class CharSelectUI : MonoBehaviour
         mainMenuButton.onClick.AddListener(() =>
         {
             DeadweightLobby.instance.LeaveLobby();
-            SceneChangeManager.instance.Load(SceneChangeManager.Scene.MainMenu);
+            SceneChangeManager.instance.Load(SceneChangeManager.Scene.BattleScene);
         });
 
         readyButton.onClick.AddListener(() =>

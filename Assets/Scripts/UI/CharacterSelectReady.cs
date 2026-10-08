@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
-
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class CharacterSelectReady : NetworkBehaviour
@@ -28,11 +28,13 @@ public class CharacterSelectReady : NetworkBehaviour
             DeadweightNetworkManager.instance.EnableCpus(false);
         });
 
+        NetworkManager.Singleton.SceneManager.OnLoadComplete += SetLobbyButtons;
+
         cpuEnableButton.gameObject.SetActive(false);
         cpuDisableButton.gameObject.SetActive(false);
     }
 
-    private void Start()
+    private void SetLobbyButtons(ulong clientId, string sceneName, LoadSceneMode loadSceneMode)
     {
         SetLobbyButtonsServerRpc();
     }
@@ -40,7 +42,7 @@ public class CharacterSelectReady : NetworkBehaviour
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     void SetLobbyButtonsServerRpc()
     {
-        if (IsHost)
+        if (NetworkManager.Singleton != null && IsHost)
         {
             cpuEnableButton.gameObject.SetActive(true);
         }
