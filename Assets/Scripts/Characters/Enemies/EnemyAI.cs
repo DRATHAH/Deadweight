@@ -195,17 +195,20 @@ public class EnemyAI : DamageableCharacter
 
     public override void RemoveCharacter()
     {
-        canMove.Value = false;
-        canAttack.Value = false;
-        JointDrive jointDrive = mainJoint.slerpDrive;
-        jointDrive.positionSpring = 0;
-        mainJoint.slerpDrive = jointDrive;
-        mainCol.center = new Vector3(0, 1, 0);
-        rb.mass = 0.1f;
-
-        foreach (SyncLimbs limb in limbs)
+        if (IsServer)
         {
-            limb.MakeRagdoll();
+            canMove.Value = false;
+            canAttack.Value = false;
+            JointDrive jointDrive = mainJoint.slerpDrive;
+            jointDrive.positionSpring = 0;
+            mainJoint.slerpDrive = jointDrive;
+            mainCol.center = new Vector3(0, 1, 0);
+            rb.mass = 0.1f;
+
+            foreach (SyncLimbs limb in limbs)
+            {
+                limb.MakeRagdoll();
+            }
         }
     }
 }

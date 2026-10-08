@@ -161,9 +161,11 @@ public class Player : DamageableCharacter
     }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    void JumpServerRpc(float jump)
+    void JumpServerRpc(float jump, RpcParams rpcParams = default)
     {
-        rb.AddForce(Vector3.up * jump, ForceMode.Impulse);
+        ulong clientId = rpcParams.Receive.SenderClientId;
+        Rigidbody rigidbody = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject.GetComponent<Rigidbody>();
+        rigidbody.AddForce(Vector3.up * jump, ForceMode.Impulse);
     }
 
     bool IsGrounded()
