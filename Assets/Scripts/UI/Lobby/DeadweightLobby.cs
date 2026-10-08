@@ -1,11 +1,19 @@
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
+using Unity.Netcode;
+using Unity.Netcode.Transports.UTP;
+using Unity.Networking.Transport.Relay;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
 using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
+using Unity.Services.Relay;
+using Unity.Services.Relay.Models;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class DeadweightLobby : MonoBehaviour
 {
@@ -28,6 +36,8 @@ public class DeadweightLobby : MonoBehaviour
     }
 
     #endregion
+    const string KEY_RELAY_JOIN_CODE = "RelayJoinCode";
+
 
     Lobby joinedLobby;
     float heartbeatTimer = 0;
@@ -108,14 +118,56 @@ public class DeadweightLobby : MonoBehaviour
 
     void HandlePeriodicListLobbies()
     {
-        if (joinedLobby == null && AuthenticationService.Instance.IsSignedIn)
+        if (joinedLobby == null && AuthenticationService.Instance.IsSignedIn && SceneManager.GetActiveScene().name.Equals(SceneChangeManager.Scene.LobbyScene.ToString()))
         {
             listLobbiesTimer -= Time.deltaTime;
             if (listLobbiesTimer <= 0)
             {
-                listLobbiesTimer = 5f;
+                listLobbiesTimer = 3f;
                 ListLobbies();
             }
+        }
+    }
+
+    async Task<Allocation> AllocateRelay()
+    {
+        try
+        {
+            Allocation allocation = await RelayService.Instance.CreateAllocationAsync(DeadweightNetworkManager.instance.maxPlayers - 1);
+            return allocation;
+        }
+        catch (RelayServiceException e)
+        {
+            Debug.Log(e);
+            return default;
+        }
+    }
+
+    async Task<string> GetRelayJoinCode(Allocation allocation)
+    {
+        try
+        {
+            string relayJoinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
+            return relayJoinCode;
+        }
+        catch (RelayServiceException e)
+        {
+            Debug.Log(e);
+            return default;
+        }
+    }
+
+    async Task<JoinAllocation> JoinRelay(string joinCode)
+    {
+        try
+        {
+            JoinAllocation allocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
+            return allocation;
+        }
+        catch (RelayServiceException e)
+        {
+            Debug.Log(e);
+            return default;
         }
     }
 
@@ -128,6 +180,19 @@ public class DeadweightLobby : MonoBehaviour
             {
                 IsPrivate = isPrivate
             });
+
+            Allocation allocation = await AllocateRelay();
+            string relayJoinCode = await GetRelayJoinCode(allocation);
+            await LobbyService.Instance.UpdateLobbyAsync(joinedLobby.Id, new UpdateLobbyOptions
+            {
+                Data = new Dictionary<string, DataObject>
+                {
+                    {KEY_RELAY_JOIN_CODE, new DataObject(DataObject.VisibilityOptions.Member, relayJoinCode)}
+                }
+            });
+
+            RelayServerData relay = AllocationUtils.ToRelayServerData(allocation, "dtls");
+            NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relay);
 
             DeadweightNetworkManager.instance.StartHost();
             SceneChangeManager.instance.LoadScene(SceneChangeManager.Scene.GameSelectScene);
@@ -145,6 +210,12 @@ public class DeadweightLobby : MonoBehaviour
         try
         {
             joinedLobby = await LobbyService.Instance.QuickJoinLobbyAsync();
+
+            string relayJoinCode = joinedLobby.Data[KEY_RELAY_JOIN_CODE].Value;
+            JoinAllocation joinAllocation = await JoinRelay(relayJoinCode);
+            RelayServerData relay = AllocationUtils.ToRelayServerData(joinAllocation, "dtls");
+            NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relay);
+
             DeadweightNetworkManager.instance.StartClient();
         }
         catch (LobbyServiceException e)
@@ -160,6 +231,12 @@ public class DeadweightLobby : MonoBehaviour
         try
         {
             joinedLobby = await LobbyService.Instance.JoinLobbyByCodeAsync(lobbyCode);
+
+            string relayJoinCode = joinedLobby.Data[KEY_RELAY_JOIN_CODE].Value;
+            JoinAllocation joinAllocation = await JoinRelay(relayJoinCode);
+            RelayServerData relay = AllocationUtils.ToRelayServerData(joinAllocation, "dtls");
+            NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relay);
+
             DeadweightNetworkManager.instance.StartClient();
         }
         catch (LobbyServiceException e)
@@ -175,6 +252,12 @@ public class DeadweightLobby : MonoBehaviour
         try
         {
             joinedLobby = await LobbyService.Instance.JoinLobbyByIdAsync(lobbyId);
+
+            string relayJoinCode = joinedLobby.Data[KEY_RELAY_JOIN_CODE].Value;
+            JoinAllocation joinAllocation = await JoinRelay(relayJoinCode);
+            RelayServerData relay = AllocationUtils.ToRelayServerData(joinAllocation, "dtls");
+            NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relay);
+
             DeadweightNetworkManager.instance.StartClient();
         }
         catch (LobbyServiceException e)

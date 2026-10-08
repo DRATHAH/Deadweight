@@ -63,4 +63,9 @@ public class LobbyUI : MonoBehaviour
             lobbyTemp.GetComponent<LobbyTemplateUI>().SetLobby(lobby);
         }
     }
+
+    private void OnDestroy()
+    {
+        DeadweightLobby.instance.OnLobbyListChanged -= DeadweightLobby_OnLobbyListChanged;
+    }
 }

@@ -63,9 +63,13 @@ public class LobbyMessageUI : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnDestroy()
     {
-        
+        DeadweightNetworkManager.instance.OnFailedToJoinGame -= DeadweightNetworkManager_OnFailedToJoinGame;
+        DeadweightLobby.instance.OnCreateLobbyStarted -= DeadweightLobby_OnCreateLobbyStarted;
+        DeadweightLobby.instance.OnCreateLobbyFailed -= DeadweightLobby_OnCreateLobbyFailed;
+        DeadweightLobby.instance.OnJoinStarted -= DeadweightLobby_OnJoinStarted;
+        DeadweightLobby.instance.OnJoinFailed -= DeadweightLobby_OnJoinFailed;
+        DeadweightLobby.instance.OnCodeJoinFailed -= DeadweightLobby_OnCodeJoinFailed;
     }
 }
