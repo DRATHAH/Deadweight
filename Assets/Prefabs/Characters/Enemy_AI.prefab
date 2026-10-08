@@ -2037,7 +2037,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2668174640042852884}
@@ -2178,8 +2178,8 @@ MonoBehaviour:
   rb: {fileID: -3719071537785785223}
   attackDmg: 1
   attackRange: 1.5
-  attackRate: 2
-  knockback: 25
+  attackRate: 4
+  knockback: 15
   turnSpeed: 300
   attackTarget: {fileID: 0}
   agent: {fileID: 5996218150672740053}

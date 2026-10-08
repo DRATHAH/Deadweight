@@ -87,4 +87,9 @@ public class CharacterSelectReady : NetworkBehaviour
     {
         return playersReady.ContainsKey(clientId) && playersReady[clientId];
     }
+
+    public override void OnDestroy()
+    {
+        NetworkManager.Singleton.SceneManager.OnLoadComplete -= SetLobbyButtons;
+    }
 }
