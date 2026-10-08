@@ -28333,7 +28333,7 @@ MonoBehaviour:
   chain: {fileID: 2832729993579876332, guid: 56f8a9aa49dcc0142abd849412a04066, type: 3}
   chainAmount: 12
   timerText: {fileID: 1523258382}
-  time: 600
+  time: 180
   spawns:
   - {fileID: 1530036300}
   - {fileID: 1858138680}
