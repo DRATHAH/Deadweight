@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class CharacterSelectReady : NetworkBehaviour
+public class CharacterSelectReady : MonoBehaviour
 {
     public static CharacterSelectReady instance {  get; private set; }
     public Button cpuEnableButton;
@@ -28,8 +28,6 @@ public class CharacterSelectReady : NetworkBehaviour
             DeadweightNetworkManager.instance.EnableCpus(false);
         });
 
-        NetworkManager.Singleton.SceneManager.OnLoadComplete += SetLobbyButtons;
-
         cpuEnableButton.gameObject.SetActive(false);
         cpuDisableButton.gameObject.SetActive(false);
     }
@@ -42,7 +40,7 @@ public class CharacterSelectReady : NetworkBehaviour
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     void SetLobbyButtonsServerRpc()
     {
-        if (NetworkManager.Singleton != null && IsHost)
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsHost)
         {
             cpuEnableButton.gameObject.SetActive(true);
         }
@@ -88,7 +86,7 @@ public class CharacterSelectReady : NetworkBehaviour
         return playersReady.ContainsKey(clientId) && playersReady[clientId];
     }
 
-    public override void OnDestroy()
+    void OnDestroy()
     {
         NetworkManager.Singleton.SceneManager.OnLoadComplete -= SetLobbyButtons;
     }
