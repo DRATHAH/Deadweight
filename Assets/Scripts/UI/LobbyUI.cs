@@ -1,23 +1,38 @@
+using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class LobbyUI : MonoBehaviour
 {
-    public Button createGameButton;
+    public Button mainMenuButton;
+    public Button createLobbyButton;
     public Button joinGameButton;
+    public LobbyCreateUI createLobbyUI;
+    public Button joinCodeButton;
+    public TMP_InputField jointCodeField;
 
     private void Awake()
     {
-        createGameButton.onClick.AddListener(() =>
+        mainMenuButton.onClick.AddListener(() =>
         {
-            DeadweightNetworkManager.instance.StartHost();
-            SceneChangeManager.instance.LoadScene(SceneChangeManager.Scene.GameSelectScene);
+            DeadweightLobby.instance.LeaveLobby();
+            SceneChangeManager.instance.Load(SceneChangeManager.Scene.MainMenu);
+        });
+
+        createLobbyButton.onClick.AddListener(() =>
+        {
+            createLobbyUI.Show();
         });
 
         joinGameButton.onClick.AddListener(() =>
         {
-            DeadweightNetworkManager.instance.StartClient();
+            DeadweightLobby.instance.QuickJoin();
+        });
+
+        joinCodeButton.onClick.AddListener(() =>
+        {
+            DeadweightLobby.instance.JoinWithCode(jointCodeField.text);
         });
     }
 }

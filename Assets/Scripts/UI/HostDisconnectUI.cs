@@ -15,6 +15,7 @@ public class HostDisconnectUI : MonoBehaviour
 
         returnButton.onClick.AddListener(() =>
         {
+            DeadweightLobby.instance.LeaveLobby();
             SceneChangeManager.instance.Load(SceneChangeManager.Scene.MainMenu);
         });
     }
@@ -35,5 +36,13 @@ public class HostDisconnectUI : MonoBehaviour
     void Hide()
     {
         gameObject.SetActive(false);
+    }
+
+    private void OnDestroy()
+    {
+        if (NetworkManager.Singleton != null)
+        {
+            NetworkManager.Singleton.OnClientDisconnectCallback -= ShowMenu;
+        }
     }
 }

@@ -20,25 +20,52 @@ public class DeadweightLobby : MonoBehaviour
 
         instance = this;
         DontDestroyOnLoad(instance);
+
+        InitializeAuthethication();
     }
 
     #endregion
 
     Lobby joinedLobby;
+    float heartbeatTimer = 0;
 
     async void InitializeAuthethication()
     {
         if(UnityServices.State != ServicesInitializationState.Initialized)
         {
             InitializationOptions options = new InitializationOptions();
-            options.SetProfile(Random.Range(0f,10000f).ToString());
+            options.SetProfile(Random.Range(0,10000).ToString());
             await UnityServices.InitializeAsync(options);
 
             await AuthenticationService.Instance.SignInAnonymouslyAsync();
         }
     }
 
-    async void CreateLobby(string lobbyName, bool isPrivate)
+    private void Update()
+    {
+        HandleHeartbeat();
+    }
+
+    void HandleHeartbeat()
+    {
+        if (IsLobbyHost())
+        {
+            heartbeatTimer -= Time.deltaTime;
+            if (heartbeatTimer <= 0)
+            {
+                heartbeatTimer = 15f;
+
+                LobbyService.Instance.SendHeartbeatPingAsync(joinedLobby.Id);
+            }
+        }
+    }
+
+    bool IsLobbyHost()
+    {
+        return joinedLobby != null && joinedLobby.HostId == AuthenticationService.Instance.PlayerId;
+    }
+
+    public async void CreateLobby(string lobbyName, bool isPrivate)
     {
         try
         {
@@ -67,5 +94,55 @@ public class DeadweightLobby : MonoBehaviour
         {
             Debug.Log(e);
         }
+    }
+
+    async public void JoinWithCode(string lobbyCode)
+    {
+        try
+        {
+            joinedLobby = await LobbyService.Instance.JoinLobbyByCodeAsync(lobbyCode);
+            DeadweightNetworkManager.instance.StartClient();
+        }
+        catch (LobbyServiceException e)
+        {
+            Debug.Log(e);
+        }
+    }
+
+    public async void DeleteLobby()
+    {
+        if (joinedLobby != null)
+        {
+            try
+            {
+                await LobbyService.Instance.DeleteLobbyAsync(joinedLobby.Id);
+                joinedLobby = null;
+            }
+            catch (LobbyServiceException e)
+            {
+                Debug.Log(e);
+            }
+        }
+    }
+
+     public async void LeaveLobby()
+    {
+        if (joinedLobby != null)
+        {
+            try
+            {
+                await LobbyService.Instance.RemovePlayerAsync(joinedLobby.Id, AuthenticationService.Instance.PlayerId);
+                joinedLobby = null;
+            }
+            catch (LobbyServiceException e)
+            {
+                Debug.Log(e);
+            }
+        }
+    }
+
+    public Lobby GetLobby()
+    {
+        return joinedLobby;
     }
 }

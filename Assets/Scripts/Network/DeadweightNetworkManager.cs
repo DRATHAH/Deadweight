@@ -4,6 +4,7 @@ using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using Unity.Services.Authentication;
 
 public class DeadweightNetworkManager : NetworkBehaviour
 {
@@ -43,7 +44,7 @@ public class DeadweightNetworkManager : NetworkBehaviour
     public void StartHost()
     {
         NetworkManager.Singleton.ConnectionApprovalCallback += NetworkManager_ConnectionApprovalCallback;
-        NetworkManager.Singleton.OnClientConnectedCallback += NetworkManager_OnClientConnectedCallback;
+        NetworkManager.Singleton.OnClientConnectedCallback += NetworkManager_Server_OnClientConnectedCallback;
         NetworkManager.Singleton.OnClientDisconnectCallback += NetworkManager_Server_OnClientDisconnectCallback;
         NetworkManager.Singleton.StartHost();
     }
@@ -60,12 +61,13 @@ public class DeadweightNetworkManager : NetworkBehaviour
         }
     }
 
-    void NetworkManager_OnClientConnectedCallback(ulong clientId)
+    void NetworkManager_Server_OnClientConnectedCallback(ulong clientId)
     {
         playerDataNetworkList.Add(new PlayerData
         {
             clientId = clientId
         });
+        SetPlayerIdServerRpc(AuthenticationService.Instance.PlayerId);
     }
 
     void NetworkManager_ConnectionApprovalCallback(NetworkManager.ConnectionApprovalRequest connectionApprovalRequest, NetworkManager.ConnectionApprovalResponse connectionApprovalResponse)
@@ -90,7 +92,20 @@ public class DeadweightNetworkManager : NetworkBehaviour
     public void StartClient()
     {
         NetworkManager.Singleton.OnClientDisconnectCallback += NetworkManager_OnClientDisconnectCallback;
+        NetworkManager.Singleton.OnClientConnectedCallback += NetworkManager_OnClientConnectedCallback;
         NetworkManager.Singleton.StartClient();
+    }
+
+    private void NetworkManager_OnClientConnectedCallback(ulong clientId)
+    {
+        SetPlayerIdServerRpc(AuthenticationService.Instance.PlayerId);
+    }
+
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    void SetPlayerIdServerRpc(string playerId, RpcParams rpcParams = default)
+    {
+        PlayerData playerData = GetPlayerDataFromClientId(rpcParams.Receive.SenderClientId);
+        playerData.playerId = playerId;
     }
 
     private void NetworkManager_OnClientDisconnectCallback(ulong clientId)
@@ -111,6 +126,18 @@ public class DeadweightNetworkManager : NetworkBehaviour
     public bool IsPlayerIndexConnected(int playerIndex)
     {
         return playerIndex < playerDataNetworkList.Count;
+    }
+
+    public PlayerData GetPlayerDataFromClientId(ulong clientId)
+    {
+        foreach(PlayerData playerData in playerDataNetworkList)
+        {
+            if (playerData.clientId == clientId)
+            {
+                return playerData;
+            }
+        }
+        return default;
     }
 
     public PlayerData GetPlayerDataFromPlayerIndex(int playerIndex)
