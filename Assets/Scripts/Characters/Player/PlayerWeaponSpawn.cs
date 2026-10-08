@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class PlayerWeaponSpawn : SpawnWeapon
 {
+    public PlayerAnimated animatedPlayer;
+
     Player player;
 
     public override void OnNetworkSpawn()
@@ -22,5 +24,6 @@ public class PlayerWeaponSpawn : SpawnWeapon
         GameObject weaponObj = Instantiate(player.equippedWeapon.prefab, player.weaponPoint.position, player.weaponPoint.rotation);
         weaponObj.transform.parent = player.weaponPoint;
         weapon = weaponObj.GetComponent<WeaponObject>();
+        animatedPlayer.SetWeapon(weapon);
     }
 }

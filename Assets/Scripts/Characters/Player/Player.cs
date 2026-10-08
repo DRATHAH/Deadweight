@@ -30,6 +30,8 @@ public class Player : DamageableCharacter
     Quaternion mainJointTargetRotation;
     float startSlerpPosSpring = 0;
     Vector3 startColPos = Vector3.zero;
+
+    bool isActiveRagdoll = true;
     SyncLimbs[] limbs;
 
     NetworkVariable<bool> canAttack = new NetworkVariable<bool>(
@@ -59,7 +61,6 @@ public class Player : DamageableCharacter
         startSlerpPosSpring = mainJoint.slerpDrive.positionSpring;
         limbs = GetComponentsInChildren<SyncLimbs>();
         startColPos = mainCol.center;
-        animator.SetLayerWeight(1, 1f); // Sets the attack layer
     }
 
     void NetworkManager_OnClientDisconnectCallback(ulong clientId)
@@ -103,6 +104,14 @@ public class Player : DamageableCharacter
         {
             ResetAttackServerRpc();
         }
+
+        if (isActiveRagdoll)
+        {
+            foreach(SyncLimbs limb in limbs)
+            {
+                limb.UpdateJointFromAnimation();
+            }
+        }
     }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
@@ -145,7 +154,7 @@ public class Player : DamageableCharacter
         else
         {
             float speed = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z).magnitude;
-            animator.SetFloat("Speed", speed / moveSpeed);
+            animator.SetFloat("Speed", 0);
         }
 
             rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
@@ -181,7 +190,7 @@ public class Player : DamageableCharacter
     {
         ulong attackerId = rpcParams.Receive.SenderClientId;
         Transform attacker = NetworkManager.Singleton.ConnectedClients[attackerId].PlayerObject.transform;
-        attacker.GetComponent<Animator>().SetTrigger("Attack");
+        attacker.GetComponent<Player>().animator.SetTrigger("Attack");
         attacker.GetComponent<Player>().canAttack.Value = false;
         List<DamageableCharacter> hitTargets = new List<DamageableCharacter>();
         Collider[] hits = Physics.OverlapSphere(attacker.position + attacker.forward * 0.5f, 2);
@@ -219,6 +228,7 @@ public class Player : DamageableCharacter
             limb.MakeRagdoll();
         }
 
+        isActiveRagdoll = false;
         canMove.Value = false;
 
         yield return new WaitForSeconds(2);
@@ -234,6 +244,7 @@ public class Player : DamageableCharacter
             transform.position += new Vector3(0, Mathf.Abs(mainCol.center.y - startColPos.y), 0);
             mainCol.center = startColPos;
             canMove.Value = true;
+            isActiveRagdoll = true;
         }
     }
 
@@ -251,5 +262,7 @@ public class Player : DamageableCharacter
         {
             limb.MakeRagdoll();
         }
+
+        isActiveRagdoll = false;
     }
 }
