@@ -15,5 +15,10 @@ public class ManagerCleanup : MonoBehaviour
         {
             Destroy(DeadweightNetworkManager.instance.gameObject);
         }
+
+        if (DeadweightLobby.instance != null)
+        {
+            Destroy (DeadweightLobby.instance.gameObject);
+        }
     }
 }
