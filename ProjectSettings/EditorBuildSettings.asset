@@ -12,6 +12,9 @@ EditorBuildSettings:
     path: Assets/Scenes/LobbyScene.unity
     guid: cc5e06366e3dada4eb0274efa1316512
   - enabled: 1
+    path: Assets/Scenes/LevelOnePoC.unity
+    guid: a31a72ab74390b54faebbcb7aaf36313
+  - enabled: 0
     path: Assets/Scenes/LevelOne.unity
     guid: b270d24d5e86c5b46997285c03a060ab
   - enabled: 1

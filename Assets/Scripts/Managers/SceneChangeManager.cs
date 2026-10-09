@@ -28,7 +28,7 @@ public class SceneChangeManager : MonoBehaviour
         GameSelectScene,
         ResultsScene,
         MainMenu,
-        LevelOne
+        LevelOnePoC
     }
 
     Scene targetScene;
