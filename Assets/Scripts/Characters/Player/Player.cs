@@ -56,6 +56,10 @@ public class Player : DamageableCharacter
         {
             LocalInstance = this;
         }
+        else
+        {
+            GetComponent<PlayerInput>().enabled = false;
+        }
 
         OnAnyPlayerSpawn?.Invoke(this, EventArgs.Empty);
         startSlerpPosSpring = mainJoint.slerpDrive.positionSpring;
@@ -124,7 +128,7 @@ public class Player : DamageableCharacter
 
     void OnJump(InputValue jumpButton)
     {
-        if (IsGrounded())
+        if (IsGrounded() && IsOwner)
         {
             JumpServerRpc(jumpForce);
         }
@@ -172,7 +176,6 @@ public class Player : DamageableCharacter
     {
         Vector3 start = mainCol.transform.TransformPoint(mainCol.center);
         float rayLength = mainCol.radius + 0.025f;
-        Debug.DrawLine(start, start + (Vector3.down * rayLength), Color.red, 10);
         bool hasHit = Physics.SphereCast(start, mainCol.radius / 2, Vector3.down, out RaycastHit hitInfo, rayLength, groundLayer, QueryTriggerInteraction.Ignore);
         Debug.Log(hasHit);
         return hasHit;
@@ -258,7 +261,7 @@ public class Player : DamageableCharacter
         jointDrive.positionSpring = 0;
         mainJoint.slerpDrive = jointDrive;
         mainCol.center = new Vector3(0, 1, 0);
-        rb.mass = 0.1f;
+        rb.mass = 0f;
 
         foreach (SyncLimbs limb in limbs)
         {

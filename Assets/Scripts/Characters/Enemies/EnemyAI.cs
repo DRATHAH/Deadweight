@@ -99,7 +99,7 @@ public class EnemyAI : DamageableCharacter
                         Quaternion desiredDirection = Quaternion.LookRotation(new Vector3(direction.x * -1, 0, direction.z), transform.up);
                         mainJointTargetRotation = Quaternion.RotateTowards(mainJointTargetRotation, desiredDirection, Time.fixedDeltaTime * turnSpeed);
                         mainJoint.targetRotation = mainJointTargetRotation;
-
+                        Debug.DrawLine(transform.position, path.corners[path.corners.Length - 1], Color.green, 100f);
                         rb.MovePosition(rb.position + direction * agent.speed * Time.fixedDeltaTime);
                     }
                     else if (path.status == NavMeshPathStatus.PathPartial)
@@ -166,30 +166,33 @@ public class EnemyAI : DamageableCharacter
 
     public override IEnumerator Recover()
     {
-        canAttack.Value = false;
-        JointDrive jointDrive = mainJoint.slerpDrive;
-        jointDrive.positionSpring = 0;
-        mainJoint.slerpDrive = jointDrive;
-        mainCol.center = new Vector3(0, 1, 0);
-        foreach (SyncLimbs limb in limbs)
+        if (IsServer)
         {
-            limb.MakeRagdoll();
-        }
-
-        yield return new WaitForSeconds(2);
-        
-        if (targetable)
-        {
-            jointDrive = mainJoint.slerpDrive;
-            jointDrive.positionSpring = startSlerpPosSpring;
+            canAttack.Value = false;
+            JointDrive jointDrive = mainJoint.slerpDrive;
+            jointDrive.positionSpring = 0;
             mainJoint.slerpDrive = jointDrive;
+            mainCol.center = new Vector3(0, 1, 0);
             foreach (SyncLimbs limb in limbs)
             {
-                limb.MakeActiveRagdoll();
+                limb.MakeRagdoll();
             }
-            transform.position += new Vector3(0, Mathf.Abs(mainCol.center.y - startColPos.y), 0);
-            mainCol.center = startColPos;
-            canMove.Value = true;
+
+            yield return new WaitForSeconds(2);
+
+            if (targetable)
+            {
+                jointDrive = mainJoint.slerpDrive;
+                jointDrive.positionSpring = startSlerpPosSpring;
+                mainJoint.slerpDrive = jointDrive;
+                foreach (SyncLimbs limb in limbs)
+                {
+                    limb.MakeActiveRagdoll();
+                }
+                transform.position += new Vector3(0, Mathf.Abs(mainCol.center.y - startColPos.y), 0);
+                mainCol.center = startColPos;
+                canMove.Value = true;
+            }
         }
     }
 
@@ -203,7 +206,7 @@ public class EnemyAI : DamageableCharacter
             jointDrive.positionSpring = 0;
             mainJoint.slerpDrive = jointDrive;
             mainCol.center = new Vector3(0, 1, 0);
-            rb.mass = 0.1f;
+            rb.mass = 0f;
 
             foreach (SyncLimbs limb in limbs)
             {
