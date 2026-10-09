@@ -90,7 +90,7 @@ public class EnemyAI : DamageableCharacter
                     rb.MovePosition(rb.position + direction * agent.speed * Time.fixedDeltaTime);
 
                 }
-                else if (NavMesh.SamplePosition(attackTarget.position, out NavMeshHit hit, attackRange * 2, NavMesh.AllAreas))
+                else if (NavMesh.SamplePosition(attackTarget.position, out NavMeshHit hit, attackRange, NavMesh.AllAreas))
                 {
                     Vector3 direction = (new Vector3(hit.position.x, hit.position.y + 1, hit.position.z) - transform.position).normalized;
                     Quaternion desiredDirection = Quaternion.LookRotation(new Vector3(direction.x * -1, 0, direction.z), transform.up) * startingRotation;
@@ -142,7 +142,7 @@ public class EnemyAI : DamageableCharacter
             {
                 distanceToPlayer = (player.position - transform.position).sqrMagnitude;
                 NavMeshPath path = new NavMeshPath();
-                if ((agent.CalculatePath(player.position, path) && path.status == NavMeshPathStatus.PathComplete) || NavMesh.SamplePosition(player.position, out NavMeshHit hit, attackRange * 2, NavMesh.AllAreas))
+                if ((agent.CalculatePath(player.position, path) && path.status == NavMeshPathStatus.PathComplete) || NavMesh.SamplePosition(player.position, out NavMeshHit hit, attackRange, NavMesh.AllAreas))
                 {
                     target = player;
                 }

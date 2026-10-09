@@ -32,7 +32,7 @@ public class ChainLink : NetworkBehaviour
         //CorrectPosition();
     }
 
-    void CorrectPosition(float tension)
+    void CorrectPosition(float tension, int chainIndex)
     {
         if (attachedPlayer)
         {
@@ -46,15 +46,15 @@ public class ChainLink : NetworkBehaviour
                 attachedPlayer.GetComponent<Rigidbody>().AddForce(-direction * force);
             }*/
 
-            Rigidbody chainStart = connectedChains[connectedChains.Count - 1].GetComponent<ConnectConfigJoints>().chainStart;
-            Vector3 target = new Vector3(chainStart.position.x, transform.position.y - 1, chainStart.position.z);
+            Transform chainStart = connectedChains[chainIndex].transform;
+            Vector3 target = new Vector3(chainStart.position.x, transform.position.y, chainStart.position.z);
             Vector3 direction = (target - transform.position).normalized;
             float force = correctionForce * (tension - tensionLimit);
-            //GetComponent<Rigidbody>().AddForce(direction * force);
+            GetComponent<Rigidbody>().AddForce(direction * force);
 
             ChainLink attachedLink = attachedPlayer.GetComponent<ChainLink>();
-            Rigidbody attachedStart = attachedLink.connectedChains[attachedLink.connectedChains.Count - 1].GetComponent<ConnectConfigJoints>().chainStart;
-            target = new Vector3(attachedStart.position.x, attachedPlayer.position.y - 1, attachedStart.position.z);
+            Transform attachedStart = attachedLink.connectedChains[Mathf.Abs(chainIndex - 5)].transform;
+            target = new Vector3(attachedStart.position.x, attachedPlayer.position.y, attachedStart.position.z);
             direction = (target - attachedPlayer.position).normalized;
             attachedPlayer.GetComponent<Rigidbody>().AddForce((direction * force));
         }
@@ -63,19 +63,25 @@ public class ChainLink : NetworkBehaviour
     void GetTotalTension()
     {
         float tension = 0;
-        foreach(GameObject chain in connectedChains)
-        {
-            HingeJoint[] chainJoints = chain.GetComponentsInChildren<HingeJoint>();
-            foreach(HingeJoint joint in chainJoints)
-            {
-                tension += joint.currentForce.magnitude;
-            }
-        }
 
+        for (int i = 0; i < 3; i++)
+        {
+            ConnectConfigJoints chainJoints = connectedChains[i].GetComponent<ConnectConfigJoints>();
+            tension += (chainJoints.chainStart.position - chainJoints.chainEnd.position).magnitude;
+        }
         if (tension >= tensionLimit)
         {
-            CorrectPosition(tension);
+            CorrectPosition(tension, 0);
         }
-        Debug.Log(tension);
+
+        for (int i = 3; i < 6; i++)
+        {
+            ConnectConfigJoints chainJoints = connectedChains[i].GetComponent<ConnectConfigJoints>();
+            tension += (chainJoints.chainStart.position - chainJoints.chainEnd.position).magnitude;
+        }
+        if (tension >= tensionLimit)
+        {
+            CorrectPosition(tension, connectedChains.Count-1);
+        }
     }
 }
