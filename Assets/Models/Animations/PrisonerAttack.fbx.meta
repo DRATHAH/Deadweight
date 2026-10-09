@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: aa9e95edd85fda247a42e8d54a992abb
+guid: 227f7760e3b48d24ca0bda514b939edc
 ModelImporter:
   serializedVersion: 24501
   internalIDToNameTable: []
@@ -30,36 +30,7 @@ ModelImporter:
     animationWrapMode: 0
     extraExposedTransformPaths: []
     extraUserProperties: []
-    clipAnimations:
-    - serializedVersion: 16
-      name: charAttack1
-      takeName: charAttack1
-      internalID: 8962734274344617260
-      firstFrame: 50
-      lastFrame: 65
-      wrapMode: 0
-      orientationOffsetY: 0
-      level: 0
-      cycleOffset: 0
-      loop: 0
-      hasAdditiveReferencePose: 0
-      loopTime: 0
-      loopBlend: 0
-      loopBlendOrientation: 0
-      loopBlendPositionY: 0
-      loopBlendPositionXZ: 0
-      keepOriginalOrientation: 0
-      keepOriginalPositionY: 1
-      keepOriginalPositionXZ: 0
-      heightFromFeet: 0
-      mirror: 0
-      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
-      curves: []
-      events: []
-      transformMask: []
-      maskType: 3
-      maskSource: {instanceID: 0}
-      additiveReferencePoseFrame: 50
+    clipAnimations: []
     isReadable: 0
   meshes:
     lODScreenPercentages: []
@@ -180,7 +151,7 @@ ModelImporter:
         value: {x: 0, y: 0, z: 0}
         length: 0
         modified: 0
-    - boneName: spine2
+    - boneName: spine3
       humanName: Chest
       limit:
         min: {x: 0, y: 0, z: 0}
@@ -268,7 +239,7 @@ ModelImporter:
         value: {x: 0, y: 0, z: 0}
         length: 0
         modified: 0
-    - boneName: spine3
+    - boneName: spine4
       humanName: UpperChest
       limit:
         min: {x: 0, y: 0, z: 0}

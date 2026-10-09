@@ -7,48 +7,48 @@ AvatarMask:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: charAvatarMask
-  m_Mask: 01000000010000000100000000000000000000000000000001000000000000000100000001000000010000000100000001000000
+  m_Mask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
   m_Elements:
   - m_Path: 
     m_Weight: 1
   - m_Path: Character
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: Character/Belt
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: Character/Character_high
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: pelvis
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: pelvis/l_thigh
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: pelvis/l_thigh/l_calve
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: pelvis/l_thigh/l_calve/l_foot
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: pelvis/l_thigh/l_calve/l_foot/l_toe
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: pelvis/r_thigh
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: pelvis/r_thigh/r_calve
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: pelvis/r_thigh/r_calve/r_foot
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: pelvis/r_thigh/r_calve/r_foot/r_toe
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: pelvis/spine1
     m_Weight: 1
   - m_Path: pelvis/spine1/spine2
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: pelvis/spine1/spine2/spine3
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: pelvis/spine1/spine2/spine3/spine4
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: pelvis/spine1/spine2/spine3/spine4/l_shoulder
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: pelvis/spine1/spine2/spine3/spine4/l_shoulder/l_elbow
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: pelvis/spine1/spine2/spine3/spine4/l_shoulder/l_elbow/l_hand
-    m_Weight: 0
+    m_Weight: 1
   - m_Path: pelvis/spine1/spine2/spine3/spine4/neck
     m_Weight: 1
   - m_Path: pelvis/spine1/spine2/spine3/spine4/neck/head
@@ -58,4 +58,44 @@ AvatarMask:
   - m_Path: pelvis/spine1/spine2/spine3/spine4/r_shoulder/r_elbow
     m_Weight: 1
   - m_Path: pelvis/spine1/spine2/spine3/spine4/r_shoulder/r_elbow/r_hand
+    m_Weight: 1
+  - m_Path: root
+    m_Weight: 1
+  - m_Path: root/pelvis_ctrl
+    m_Weight: 1
+  - m_Path: root/pelvis_ctrl/l_thigh_ctrl
+    m_Weight: 1
+  - m_Path: root/pelvis_ctrl/l_thigh_ctrl/l_calve_ctrl
+    m_Weight: 1
+  - m_Path: root/pelvis_ctrl/l_thigh_ctrl/l_calve_ctrl/l_foot_ctrl
+    m_Weight: 1
+  - m_Path: root/pelvis_ctrl/r_thigh_ctrl
+    m_Weight: 1
+  - m_Path: root/pelvis_ctrl/r_thigh_ctrl/r_calve_ctrl
+    m_Weight: 1
+  - m_Path: root/pelvis_ctrl/r_thigh_ctrl/r_calve_ctrl/r_foot_ctrl
+    m_Weight: 1
+  - m_Path: root/pelvis_ctrl/spine1_ctrl
+    m_Weight: 1
+  - m_Path: root/pelvis_ctrl/spine1_ctrl/spine2_ctrl
+    m_Weight: 1
+  - m_Path: root/pelvis_ctrl/spine1_ctrl/spine2_ctrl/spine3_ctrl
+    m_Weight: 1
+  - m_Path: root/pelvis_ctrl/spine1_ctrl/spine2_ctrl/spine3_ctrl/spine4_ctrl
+    m_Weight: 1
+  - m_Path: root/pelvis_ctrl/spine1_ctrl/spine2_ctrl/spine3_ctrl/spine4_ctrl/l_shoulder_ctrl
+    m_Weight: 1
+  - m_Path: root/pelvis_ctrl/spine1_ctrl/spine2_ctrl/spine3_ctrl/spine4_ctrl/l_shoulder_ctrl/l_elbow_ctrl
+    m_Weight: 1
+  - m_Path: root/pelvis_ctrl/spine1_ctrl/spine2_ctrl/spine3_ctrl/spine4_ctrl/l_shoulder_ctrl/l_elbow_ctrl/l_hand_ctrl
+    m_Weight: 1
+  - m_Path: root/pelvis_ctrl/spine1_ctrl/spine2_ctrl/spine3_ctrl/spine4_ctrl/neck_ctrl
+    m_Weight: 1
+  - m_Path: root/pelvis_ctrl/spine1_ctrl/spine2_ctrl/spine3_ctrl/spine4_ctrl/neck_ctrl/head_ctrl
+    m_Weight: 1
+  - m_Path: root/pelvis_ctrl/spine1_ctrl/spine2_ctrl/spine3_ctrl/spine4_ctrl/r_shoulder_ctrl
+    m_Weight: 1
+  - m_Path: root/pelvis_ctrl/spine1_ctrl/spine2_ctrl/spine3_ctrl/spine4_ctrl/r_shoulder_ctrl/r_elbow_ctrl
+    m_Weight: 1
+  - m_Path: root/pelvis_ctrl/spine1_ctrl/spine2_ctrl/spine3_ctrl/spine4_ctrl/r_shoulder_ctrl/r_elbow_ctrl/r_hand_ctrl
     m_Weight: 1

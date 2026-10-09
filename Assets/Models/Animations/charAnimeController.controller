@@ -60,7 +60,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: prisonerAttack1
+  m_Name: PrisonerAttack
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
@@ -74,7 +74,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 6594690122207180291, guid: e3d7c47cfda346c418a1da5c249f42b2, type: 3}
+  m_Motion: {fileID: 469369820062360564, guid: 227f7760e3b48d24ca0bda514b939edc, type: 3}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
