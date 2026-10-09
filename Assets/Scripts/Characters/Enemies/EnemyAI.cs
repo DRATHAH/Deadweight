@@ -44,6 +44,7 @@ public class EnemyAI : DamageableCharacter
         limbs = GetComponentsInChildren<SyncLimbs>();
         startColPos = mainCol.center;
         startSlerpPosSpring = mainJoint.slerpDrive.positionSpring;
+        agent.updateRotation = false;
         agent.updatePosition = false;
         startingRotation = transform.rotation;
     }
@@ -67,6 +68,11 @@ public class EnemyAI : DamageableCharacter
 
     private void FixedUpdate()
     {
+        if (targetable)
+        {
+            agent.nextPosition = transform.position;
+        }
+
         if (canMove.Value)
         {
             attackTarget = GetAttackTarget();
@@ -74,21 +80,23 @@ public class EnemyAI : DamageableCharacter
             if (attackTarget && (attackTarget.position -  transform.position).magnitude >= attackRange)
             {
                 NavMeshPath path = new NavMeshPath();
-                if (agent.CalculatePath(attackTarget.position, path))
+                if (agent.CalculatePath(attackTarget.position, path) && NavMesh.SamplePosition(path.corners[0], out NavMeshHit cornerHit, 1, NavMesh.AllAreas))
                 {
-                    if (path.status == NavMeshPathStatus.PathComplete)
-                    {
-                        Vector3[] corners = path.corners;
-                        Vector3 direction = (new Vector3(corners[1].x, corners[1].y + 1, corners[1].z) - transform.position).normalized;
-                        Quaternion desiredDirection = Quaternion.LookRotation(new Vector3(direction.x * -1, 0, direction.z), transform.up) * startingRotation;
-                        mainJointTargetRotation = Quaternion.RotateTowards(mainJointTargetRotation, desiredDirection, Time.fixedDeltaTime * turnSpeed);
-                        mainJoint.targetRotation = mainJointTargetRotation;
-                        rb.MovePosition(rb.position + direction * agent.speed * Time.fixedDeltaTime);
-                    }
-                    else if (path.status == NavMeshPathStatus.PathPartial)
-                    {
-                        Debug.Log("Something is blocking the path");
-                    }
+                    Vector3[] corners = path.corners;
+                    Vector3 direction = (new Vector3(corners[1].x, corners[1].y + 1, corners[1].z) - transform.position).normalized;
+                    Quaternion desiredDirection = Quaternion.LookRotation(new Vector3(direction.x * -1, 0, direction.z), transform.up) * startingRotation;
+                    mainJointTargetRotation = Quaternion.RotateTowards(mainJointTargetRotation, desiredDirection, Time.fixedDeltaTime * turnSpeed);
+                    mainJoint.targetRotation = mainJointTargetRotation;
+                    rb.MovePosition(rb.position + direction * agent.speed * Time.fixedDeltaTime);
+
+                }
+                else if (NavMesh.SamplePosition(attackTarget.position, out NavMeshHit hit, attackRange * 2, NavMesh.AllAreas))
+                {
+                    Vector3 direction = (new Vector3(hit.position.x, hit.position.y + 1, hit.position.z) - transform.position).normalized;
+                    Quaternion desiredDirection = Quaternion.LookRotation(new Vector3(direction.x * -1, 0, direction.z), transform.up) * startingRotation;
+                    mainJointTargetRotation = Quaternion.RotateTowards(mainJointTargetRotation, desiredDirection, Time.fixedDeltaTime * turnSpeed);
+                    mainJoint.targetRotation = mainJointTargetRotation;
+                    rb.MovePosition(rb.position + direction * agent.speed * Time.fixedDeltaTime);
                 }
                 else
                 {
@@ -134,10 +142,8 @@ public class EnemyAI : DamageableCharacter
             {
                 distanceToPlayer = (player.position - transform.position).sqrMagnitude;
                 NavMeshPath path = new NavMeshPath();
-                if (agent.CalculatePath(player.position, path) && path.status == NavMeshPathStatus.PathComplete)
+                if ((agent.CalculatePath(player.position, path) && path.status == NavMeshPathStatus.PathComplete) || NavMesh.SamplePosition(player.position, out NavMeshHit hit, attackRange * 2, NavMesh.AllAreas))
                 {
-                    Debug.DrawLine(transform.position, path.corners[path.corners.Length - 1], Color.green, 1);
-                    Debug.DrawLine(path.corners[path.corners.Length - 1], path.corners[path.corners.Length-1] + Vector3.up, Color.green, 1);
                     target = player;
                 }
             }
