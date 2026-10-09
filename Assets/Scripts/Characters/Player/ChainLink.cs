@@ -74,6 +74,8 @@ public class ChainLink : NetworkBehaviour
             CorrectPosition(tension, 0);
         }
 
+        tension = 0;
+
         for (int i = 3; i < 6; i++)
         {
             ConnectConfigJoints chainJoints = connectedChains[i].GetComponent<ConnectConfigJoints>();
