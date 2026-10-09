@@ -25,9 +25,12 @@ public class Player : DamageableCharacter
     public InputActionReference jumpRef;
     public ConfigurableJoint mainJoint;
     public SphereCollider mainCol;
+    public SkinnedMeshRenderer renderer;
+    public Material controlledPlayerMat;
 
     float timeSinceAttack = 0f;
     Quaternion mainJointTargetRotation;
+    Quaternion startingRotation;
     float startSlerpPosSpring = 0;
     Vector3 startColPos = Vector3.zero;
 
@@ -55,6 +58,7 @@ public class Player : DamageableCharacter
         if (IsOwner)
         {
             LocalInstance = this;
+            renderer.material = controlledPlayerMat;
         }
         else
         {
@@ -65,6 +69,7 @@ public class Player : DamageableCharacter
         startSlerpPosSpring = mainJoint.slerpDrive.positionSpring;
         limbs = GetComponentsInChildren<SyncLimbs>();
         startColPos = mainCol.center;
+        startingRotation = transform.rotation;
     }
 
     void NetworkManager_OnClientDisconnectCallback(ulong clientId)
@@ -148,7 +153,7 @@ public class Player : DamageableCharacter
         Vector3 movement = new Vector3(horInput, 0, vertInput);
         if (movement.magnitude > 0)
         {
-            Quaternion desiredDirection = Quaternion.LookRotation(new Vector3(movement.x * -1, 0, movement.z), transform.up);
+            Quaternion desiredDirection = Quaternion.LookRotation(new Vector3(movement.x * -1, 0, movement.z), transform.up) * startingRotation;
             mainJointTargetRotation = Quaternion.RotateTowards(mainJointTargetRotation, desiredDirection, Time.fixedDeltaTime * turnSpeed);
             mainJoint.targetRotation = mainJointTargetRotation;
 
@@ -157,7 +162,6 @@ public class Player : DamageableCharacter
         }
         else
         {
-            float speed = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z).magnitude;
             animator.SetFloat("Speed", 0);
         }
 
@@ -255,13 +259,17 @@ public class Player : DamageableCharacter
 
     public override void RemoveCharacter()
     {
-        canMove.Value = false;
-        canAttack.Value = false;
+        if (IsServer)
+        {
+            canMove.Value = false;
+            canAttack.Value = false;
+        }
+
         JointDrive jointDrive = mainJoint.slerpDrive;
         jointDrive.positionSpring = 0;
         mainJoint.slerpDrive = jointDrive;
         mainCol.center = new Vector3(0, 1, 0);
-        rb.mass = 0f;
+        rb.mass = 0.01f;
 
         foreach (SyncLimbs limb in limbs)
         {

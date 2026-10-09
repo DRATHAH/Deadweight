@@ -20,6 +20,7 @@ public class EnemyAI : DamageableCharacter
 
     float timeSinceAttack = 0f;
     Quaternion mainJointTargetRotation;
+    Quaternion startingRotation;
     SyncLimbs[] limbs;
     float startSlerpPosSpring = 0;
     Vector3 startColPos = Vector3.zero;
@@ -44,6 +45,7 @@ public class EnemyAI : DamageableCharacter
         startColPos = mainCol.center;
         startSlerpPosSpring = mainJoint.slerpDrive.positionSpring;
         agent.updatePosition = false;
+        startingRotation = transform.rotation;
     }
 
     private void GameManager_OnSpawnCPUs(object sender, System.EventArgs e)
@@ -67,25 +69,7 @@ public class EnemyAI : DamageableCharacter
     {
         if (canMove.Value)
         {
-            float distanceToPlayer = -1;
-            // Get all players connected in the game
-            foreach (Transform target in players)
-            {
-                if (target && ((target.position - transform.position).sqrMagnitude <= distanceToPlayer || distanceToPlayer == -1) && target.GetComponent<DamageableCharacter>().targetable)
-                {
-                    distanceToPlayer = (target.position - transform.position).sqrMagnitude;
-                    NavMeshPath path = new NavMeshPath();
-                    if (agent.CalculatePath(target.position, path))
-                    {
-                        Debug.DrawLine(transform.position, path.corners[path.corners.Length-1]);
-                        attackTarget = target;
-                    }
-                    else
-                    {
-                        attackTarget = null;
-                    }
-                }
-            }
+            attackTarget = GetAttackTarget();
 
             if (attackTarget && (attackTarget.position -  transform.position).magnitude >= attackRange)
             {
@@ -96,10 +80,9 @@ public class EnemyAI : DamageableCharacter
                     {
                         Vector3[] corners = path.corners;
                         Vector3 direction = (new Vector3(corners[1].x, corners[1].y + 1, corners[1].z) - transform.position).normalized;
-                        Quaternion desiredDirection = Quaternion.LookRotation(new Vector3(direction.x * -1, 0, direction.z), transform.up);
+                        Quaternion desiredDirection = Quaternion.LookRotation(new Vector3(direction.x * -1, 0, direction.z), transform.up) * startingRotation;
                         mainJointTargetRotation = Quaternion.RotateTowards(mainJointTargetRotation, desiredDirection, Time.fixedDeltaTime * turnSpeed);
                         mainJoint.targetRotation = mainJointTargetRotation;
-                        Debug.DrawLine(transform.position, path.corners[path.corners.Length - 1], Color.green, 100f);
                         rb.MovePosition(rb.position + direction * agent.speed * Time.fixedDeltaTime);
                     }
                     else if (path.status == NavMeshPathStatus.PathPartial)
@@ -112,14 +95,20 @@ public class EnemyAI : DamageableCharacter
                     Debug.Log("Enemy can't move there");
                 }
             }
-            else
+            else if (attackTarget)
             {
-                //agent.SetDestination(transform.position);
-                agent.updateRotation = false;
+                Vector3 direction = (attackTarget.position - transform.position).normalized;
+                Quaternion desiredDirection = Quaternion.LookRotation(new Vector3(direction.x * -1, 0, direction.z), transform.up) * startingRotation;
+                mainJointTargetRotation = Quaternion.RotateTowards(mainJointTargetRotation, desiredDirection, Time.fixedDeltaTime * turnSpeed);
+                mainJoint.targetRotation = mainJointTargetRotation;
                 if (canAttack.Value)
                 {
                     OnAttack();
                 }
+            }
+            else
+            {
+                Debug.Log("No reachable attack targets");
             }
 
             if (timeSinceAttack < attackRate)
@@ -131,6 +120,30 @@ public class EnemyAI : DamageableCharacter
                 canAttack.Value = true;
             }
         }
+    }
+
+    private Transform GetAttackTarget()
+    {
+        Transform target = null;
+        float distanceToPlayer = -1;
+        // Get all players connected in the game
+
+        foreach (Transform player in players)
+        {
+            if (player && ((player.position - transform.position).sqrMagnitude <= distanceToPlayer || distanceToPlayer == -1) && player.GetComponent<DamageableCharacter>().targetable)
+            {
+                distanceToPlayer = (player.position - transform.position).sqrMagnitude;
+                NavMeshPath path = new NavMeshPath();
+                if (agent.CalculatePath(player.position, path) && path.status == NavMeshPathStatus.PathComplete)
+                {
+                    Debug.DrawLine(transform.position, path.corners[path.corners.Length - 1], Color.green, 1);
+                    Debug.DrawLine(path.corners[path.corners.Length - 1], path.corners[path.corners.Length-1] + Vector3.up, Color.green, 1);
+                    target = player;
+                }
+            }
+        }
+
+        return target;
     }
 
     void OnAttack()
@@ -202,16 +215,17 @@ public class EnemyAI : DamageableCharacter
         {
             canMove.Value = false;
             canAttack.Value = false;
-            JointDrive jointDrive = mainJoint.slerpDrive;
-            jointDrive.positionSpring = 0;
-            mainJoint.slerpDrive = jointDrive;
-            mainCol.center = new Vector3(0, 1, 0);
-            rb.mass = 0f;
+        }
 
-            foreach (SyncLimbs limb in limbs)
-            {
-                limb.MakeRagdoll();
-            }
+        JointDrive jointDrive = mainJoint.slerpDrive;
+        jointDrive.positionSpring = 0;
+        mainJoint.slerpDrive = jointDrive;
+        mainCol.center = new Vector3(0, 1, 0);
+        rb.mass = 0.01f;
+
+        foreach (SyncLimbs limb in limbs)
+        {
+            limb.MakeRagdoll();
         }
     }
 }

@@ -70,20 +70,18 @@ public class GameManager : NetworkBehaviour
         {
             if (i < NetworkManager.Singleton.ConnectedClientsIds.Count)
             {
-                Transform playerTransform = Instantiate(playerPrefab, spawns[i].position, Quaternion.identity);
+                Transform playerTransform = Instantiate(playerPrefab, spawns[i].position, spawns[i].rotation);
                 playerTransform.GetComponent<NetworkObject>().SpawnAsPlayerObject(NetworkManager.Singleton.ConnectedClientsIds[i], true);
             }
             else if (DeadweightNetworkManager.instance.GetCpuState())
             {
-                GameObject enemy = Instantiate(CPUPrefab, spawns[i].position, Quaternion.identity);
+                GameObject enemy = Instantiate(CPUPrefab, spawns[i].position, spawns[i].rotation);
                 NetworkObject enemyObj = enemy.GetComponent<NetworkObject>();
                 enemyObj.Spawn(true);
                 CPUs.Add(enemy.GetComponent<EnemyAI>());
                 gamePlayers.Add(enemy);
             }
         }
-
-        OnSpawnCPUs?.Invoke(this, EventArgs.Empty);
 
         foreach (ulong id in NetworkManager.Singleton.ConnectedClientsIds)
         {
@@ -160,6 +158,7 @@ public class GameManager : NetworkBehaviour
             }
         }
 
+        OnSpawnCPUs?.Invoke(this, EventArgs.Empty);
         gameStarted = true;
     }
 
