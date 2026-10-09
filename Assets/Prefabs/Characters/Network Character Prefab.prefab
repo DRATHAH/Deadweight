@@ -915,6 +915,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 3672796760028381317}
     m_Modifications:
+    - target: {fileID: 5866666021909216657, guid: 227f7760e3b48d24ca0bda514b939edc, type: 3}
+      propertyPath: m_Avatar
+      value: 
+      objectReference: {fileID: 9000000, guid: 227f7760e3b48d24ca0bda514b939edc, type: 3}
+    - target: {fileID: 5866666021909216657, guid: 227f7760e3b48d24ca0bda514b939edc, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 2a00f73da59231d49920fce11c1bc6a9, type: 2}
+    - target: {fileID: 5866666021909216657, guid: 227f7760e3b48d24ca0bda514b939edc, type: 3}
+      propertyPath: m_CullingMode
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 1fc0a9dc43dfd9948ba31c3f9529e017, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -1483,18 +1495,6 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 3
       objectReference: {fileID: 0}
-    - target: {fileID: 5866666021909216657, guid: 227f7760e3b48d24ca0bda514b939edc, type: 3}
-      propertyPath: m_Avatar
-      value: 
-      objectReference: {fileID: 9000000, guid: 227f7760e3b48d24ca0bda514b939edc, type: 3}
-    - target: {fileID: 5866666021909216657, guid: 227f7760e3b48d24ca0bda514b939edc, type: 3}
-      propertyPath: m_Controller
-      value: 
-      objectReference: {fileID: 9100000, guid: 2a00f73da59231d49920fce11c1bc6a9, type: 2}
-    - target: {fileID: 5866666021909216657, guid: 227f7760e3b48d24ca0bda514b939edc, type: 3}
-      propertyPath: m_CullingMode
-      value: 0
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1727,7 +1727,7 @@ MonoBehaviour:
     Layer: 1
     OriginatingState: 2081823275
     DestinationState: 1480391238
-    TransitionDuration: 0
+    TransitionDuration: 0.25
     TriggerNameHash: 1080829965
     TransitionIndex: 0
   AnimatorParameterEntries:
@@ -3081,7 +3081,7 @@ ConfigurableJoint:
     useAcceleration: 0
   m_SlerpDrive:
     serializedVersion: 4
-    positionSpring: 4
+    positionSpring: 20
     positionDamper: 0
     maximumForce: 3.4028233e+38
     useAcceleration: 0
@@ -3315,8 +3315,8 @@ ConfigurableJoint:
     useAcceleration: 0
   m_SlerpDrive:
     serializedVersion: 4
-    positionSpring: 4
-    positionDamper: 0
+    positionSpring: 50
+    positionDamper: 10
     maximumForce: 3.4028233e+38
     useAcceleration: 0
   m_ProjectionMode: 0
@@ -3550,7 +3550,7 @@ ConfigurableJoint:
   m_SlerpDrive:
     serializedVersion: 4
     positionSpring: 100
-    positionDamper: 0
+    positionDamper: 10
     maximumForce: 3.4028233e+38
     useAcceleration: 0
   m_ProjectionMode: 0
