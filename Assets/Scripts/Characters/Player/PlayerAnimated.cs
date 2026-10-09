@@ -9,13 +9,15 @@ public class PlayerAnimated : MonoBehaviour
         weapon = obj;
     }
 
+    // Called in animation
     void StartWeaponTrace()
     {
-        //weapon.StartWeaponTrace();
+        weapon.StartWeaponTrace();
     }
 
+    // Called in animation
     void EndWeaponTrace()
     {
-        //weapon.EndWeaponTrace();
+        weapon.EndWeaponTrace();
     }
 }

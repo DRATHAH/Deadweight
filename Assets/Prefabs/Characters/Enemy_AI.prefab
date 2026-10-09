@@ -2178,8 +2178,8 @@ MonoBehaviour:
   rb: {fileID: -3719071537785785223}
   attackDmg: 1
   attackRange: 1.5
-  attackRate: 2
-  knockback: 15
+  attackRate: 3
+  knockback: 10
   turnSpeed: 300
   attackTarget: {fileID: 0}
   agent: {fileID: 5996218150672740053}
@@ -2214,7 +2214,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ChainLink
   ShowTopMostFoldoutHeaderGroup: 1
   chainDistance: 5
-  correctionForce: 100
+  tensionLimit: 100
+  correctionForce: 1
   anchors:
   - {fileID: 8450692282586866633}
   - {fileID: 1355335447564779263}

@@ -108,16 +108,16 @@ public class GameManager : NetworkBehaviour
         {
             for (int i = 0; i < gamePlayers.Count; i++)
             {
-                Transform playerA = gamePlayers[i].transform.GetComponent<ChainLink>().anchors[1].transform;
+                Transform playerA = gamePlayers[i].transform.GetComponent<ChainLink>().anchors[0].transform;
                 Transform playerB;
 
                 if (i + 1 >= gamePlayers.Count)
                 {
-                    playerB = gamePlayers[0].transform.GetComponent<ChainLink>().anchors[0].transform;
+                    playerB = gamePlayers[0].transform.GetComponent<ChainLink>().anchors[1].transform;
                 }
                 else
                 {
-                    playerB = gamePlayers[i + 1].transform.GetComponent<ChainLink>().anchors[0].transform;
+                    playerB = gamePlayers[i + 1].transform.GetComponent<ChainLink>().anchors[1].transform;
                 }
                 float distBetweenSpawns = (playerB.position - playerA.position).magnitude;
                 float chainNum = (distBetweenSpawns / 1.8f) + .5f;

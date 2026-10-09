@@ -68,7 +68,7 @@ public class SceneChangeManager : MonoBehaviour
         {
             NetworkManager.Singleton.SceneManager.LoadScene(targetScene.ToString(), LoadSceneMode.Single);
         }
-        else if (NetworkManager.Singleton.SceneManager != null)
+        else
         {
             AsyncOperation operation = SceneManager.LoadSceneAsync(targetScene.ToString(), LoadSceneMode.Single);
             while (!operation.isDone)

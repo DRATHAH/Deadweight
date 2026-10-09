@@ -35,18 +35,12 @@ public class CharacterSelectReady : NetworkBehaviour
 
     void Start()
     {
-        NetworkManager.Singleton.SceneManager.OnLoadComplete += SetLobbyButtons;
         StartCoroutine(CpuButton());
-    }
-
-    private void SetLobbyButtons(ulong clientId, string sceneName, LoadSceneMode loadSceneMode)
-    {
-        SetLobbyButtonsServerRpc();
     }
 
     IEnumerator CpuButton()
     {
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(0.5f);
         SetLobbyButtonsServerRpc();
     }
 
@@ -83,7 +77,7 @@ public class CharacterSelectReady : NetworkBehaviour
         if (allClientsReady)
         {
             DeadweightLobby.instance.DeleteLobby();
-            SceneChangeManager.instance.LoadScene(SceneChangeManager.Scene.BattleScene);
+            SceneChangeManager.instance.LoadScene(SceneChangeManager.Scene.LevelOnePoC);
         }
     }
 
@@ -101,6 +95,6 @@ public class CharacterSelectReady : NetworkBehaviour
 
     public override void OnDestroy()
     {
-        NetworkManager.Singleton.SceneManager.OnLoadComplete -= SetLobbyButtons;
+        //NetworkManager.Singleton.SceneManager.OnLoadComplete -= SetLobbyButtons;
     }
 }

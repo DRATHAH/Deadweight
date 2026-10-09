@@ -148,6 +148,9 @@ public class Player : DamageableCharacter
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)] 
     void MoveServerRpc(Vector2 inputVector, RpcParams rpcParams = default)
     {
+        ulong clientId = rpcParams.Receive.SenderClientId;
+        Transform playerObj = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject.transform;
+
         float horInput = inputVector.x;
         float vertInput = inputVector.y;
         Vector3 movement = new Vector3(horInput, 0, vertInput);
@@ -158,11 +161,11 @@ public class Player : DamageableCharacter
             mainJoint.targetRotation = mainJointTargetRotation;
 
             float speed = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z).magnitude;
-            animator.SetFloat("Speed", 1);
+            playerObj.GetComponent<Player>().animator.SetFloat("Speed", 1);
         }
         else
         {
-            animator.SetFloat("Speed", 0);
+            playerObj.GetComponent<Player>().animator.SetFloat("Speed", 0);
         }
 
             rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
@@ -201,7 +204,7 @@ public class Player : DamageableCharacter
         Transform attacker = NetworkManager.Singleton.ConnectedClients[attackerId].PlayerObject.transform;
         attacker.GetComponent<Player>().animator.SetTrigger("Attack");
         attacker.GetComponent<Player>().canAttack.Value = false;
-        List<DamageableCharacter> hitTargets = new List<DamageableCharacter>();
+        /*List<DamageableCharacter> hitTargets = new List<DamageableCharacter>();
         Collider[] hits = Physics.OverlapSphere(attacker.position + attacker.forward * 0.5f, 2);
         foreach (Collider hit in hits)
         {
@@ -212,7 +215,7 @@ public class Player : DamageableCharacter
                 Vector3 hitDirection = (character.transform.position - attacker.position).normalized;
                 character.OnHit(equippedWeapon.dmg, hitDirection * equippedWeapon.knockbackStrength);
             }
-        }
+        }*/
     }
 
     [Rpc(SendTo.ClientsAndHost)]
@@ -252,7 +255,10 @@ public class Player : DamageableCharacter
             }
             transform.position += new Vector3(0, Mathf.Abs(mainCol.center.y - startColPos.y), 0);
             mainCol.center = startColPos;
-            canMove.Value = true;
+            if (IsServer)
+            {
+                canMove.Value = true;
+            }
             isActiveRagdoll = true;
         }
     }
