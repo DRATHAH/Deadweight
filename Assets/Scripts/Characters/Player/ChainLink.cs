@@ -53,7 +53,7 @@ public class ChainLink : NetworkBehaviour
             GetComponent<Rigidbody>().AddForce(direction * force);
 
             ChainLink attachedLink = attachedPlayer.GetComponent<ChainLink>();
-            Transform attachedStart = attachedLink.connectedChains[Mathf.Abs(chainIndex - 5)].transform;
+            Transform attachedStart = attachedLink.connectedChains[Mathf.Abs(chainIndex - 2)].transform;
             target = new Vector3(attachedStart.position.x, attachedPlayer.position.y, attachedStart.position.z);
             direction = (target - attachedPlayer.position).normalized;
             attachedPlayer.GetComponent<Rigidbody>().AddForce((direction * force));
