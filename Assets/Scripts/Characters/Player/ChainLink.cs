@@ -32,7 +32,7 @@ public class ChainLink : NetworkBehaviour
         //CorrectPosition();
     }
 
-    void CorrectPosition(float tension, int chainIndex)
+    void CorrectPosition(float tension, int chainIndex, bool lastChain)
     {
         if (attachedPlayer)
         {
@@ -53,10 +53,14 @@ public class ChainLink : NetworkBehaviour
             GetComponent<Rigidbody>().AddForce(direction * force);
 
             ChainLink attachedLink = attachedPlayer.GetComponent<ChainLink>();
-            Transform attachedStart = attachedLink.connectedChains[Mathf.Abs(chainIndex - 2)].transform;
+            Transform attachedStart = connectedChains[0].transform;
+            if (!lastChain)
+            {
+                attachedStart = connectedChains[attachedLink.connectedChains.Count-1].transform;
+            }
             target = new Vector3(attachedStart.position.x, attachedPlayer.position.y, attachedStart.position.z);
             direction = (target - attachedPlayer.position).normalized;
-            attachedPlayer.GetComponent<Rigidbody>().AddForce((direction * force));
+            attachedPlayer.GetComponent<Rigidbody>().AddForce(direction * force);
         }
     }
 
@@ -71,19 +75,19 @@ public class ChainLink : NetworkBehaviour
         }
         if (tension >= tensionLimit)
         {
-            CorrectPosition(tension, 0);
+            CorrectPosition(tension, 0, false);
         }
 
         tension = 0;
 
-        for (int i = 3; i < 6; i++)
+        for (int i = 3; i < connectedChains.Count; i++)
         {
             ConnectConfigJoints chainJoints = connectedChains[i].GetComponent<ConnectConfigJoints>();
             tension += (chainJoints.chainStart.position - chainJoints.chainEnd.position).magnitude;
         }
         if (tension >= tensionLimit)
         {
-            CorrectPosition(tension, connectedChains.Count-1);
+            CorrectPosition(tension, connectedChains.Count-1, true);
         }
     }
 }
