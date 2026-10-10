@@ -155,6 +155,8 @@ public class Player : DamageableCharacter
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)] 
     void MoveServerRpc(Vector2 inputVector, RpcParams rpcParams = default)
     {
+        rb.linearVelocity = Vector3.ClampMagnitude(rb.linearVelocity, moveSpeed * 2);
+
         ulong clientId = rpcParams.Receive.SenderClientId;
         Transform playerObj = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject.transform;
 
@@ -175,7 +177,7 @@ public class Player : DamageableCharacter
             playerObj.GetComponent<Player>().animator.SetFloat("Speed", 0);
         }
 
-            rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
+        rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
     }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
