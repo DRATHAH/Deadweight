@@ -209,20 +209,21 @@ public class GameManager : NetworkBehaviour
             {
                 UpdateTimerClientRpc(time);
                 UpdateCamera();
-            }
-        }
 
-        int playersAlive = 0;
-        foreach(GameObject player in gamePlayers)
-        {
-            if (player.GetComponent<DamageableCharacter>().targetable)
-            {
-                playersAlive++;
+
+                int playersAlive = 0;
+                foreach (GameObject player in gamePlayers)
+                {
+                    if (player.GetComponent<DamageableCharacter>().targetable)
+                    {
+                        playersAlive++;
+                    }
+                }
+                if (playersAlive <= 1)
+                {
+                    EndGame();
+                }
             }
-        }
-        if (playersAlive <= 1)
-        {
-            EndGame();
         }
     }
 
