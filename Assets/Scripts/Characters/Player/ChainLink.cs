@@ -75,7 +75,9 @@ public class ChainLink : NetworkBehaviour
         }
         if (tension >= tensionLimit)
         {
+            Debug.Log(tension);
             CorrectPosition(tension, 0, false);
+            return;
         }
 
         tension = 0;
@@ -87,7 +89,9 @@ public class ChainLink : NetworkBehaviour
         }
         if (tension >= tensionLimit)
         {
+            Debug.Log(tension);
             CorrectPosition(tension, connectedChains.Count-1, true);
+            return;
         }
     }
 }
