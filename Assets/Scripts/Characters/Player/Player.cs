@@ -76,7 +76,14 @@ public class Player : DamageableCharacter
     {
         if (clientId == OwnerClientId)
         {
-            foreach(GameObject chain in GetComponent<ChainLink>().connectedChains)
+            foreach(GameObject chain in GetComponent<ChainLink>().ownedChains)
+            {
+                if (chain != null)
+                {
+                    Destroy(chain);
+                }
+            }
+            foreach (GameObject chain in GetComponent<ChainLink>().otherChains)
             {
                 if (chain != null)
                 {

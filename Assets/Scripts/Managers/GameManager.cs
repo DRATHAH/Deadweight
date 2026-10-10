@@ -36,7 +36,7 @@ public class GameManager : NetworkBehaviour
     [Header("Player and Game States")]
     public Transform playerPrefab;
     public GameObject chain;
-    public int chainAmount = 2;
+    public int chainMod = 10;
     public TMP_Text timerText;
     public float time = 60;
     public List<Transform> spawns;
@@ -119,47 +119,79 @@ public class GameManager : NetworkBehaviour
                 {
                     playerB = gamePlayers[i + 1].transform.GetComponent<ChainLink>().anchors[1].transform;
                 }
+
                 float distBetweenSpawns = (playerB.position - playerA.position).magnitude;
-                float chainNum = (distBetweenSpawns / 1.8f) + .5f;
-                UpdateChainClientRpc(distBetweenSpawns, i);
-                for (int c = 0; c < (int)chainNum; c++)
+                float distForVertex = distBetweenSpawns / 2f;
+                float halfChainNum = ((distForVertex + chainMod)/ 1.8f);
+
+                bool goingToVertex = true;
+                Vector3 startPos = Vector3.zero;
+                ChainLink connectedPlayer = playerB.parent.GetComponent<ChainLink>();
+                ChainLink startingPlayer = playerA.parent.GetComponent<ChainLink>();
+                Vector3 distanceVertex = Vector3.Lerp(playerA.position, playerB.position, 0.5f);
+                Vector3 vertex = new Vector3(distanceVertex.x, distanceVertex.y + chainMod, distanceVertex.z);
+
+                for (int c = 0; c < 2; c++)
                 {
-                    Vector3 direction = (playerB.transform.position - playerA.transform.position).normalized;
-                    Quaternion rotation = Quaternion.LookRotation(direction) * Quaternion.Euler(-90f, 0f, 0f);
-                    Vector3 spawnPos = Vector3.zero;
-                    if (prevChain == null)
+
+                    if (goingToVertex)
                     {
-                        spawnPos = playerA.position;
+                        ChainSpawnHelper(halfChainNum, vertex, playerA.position, connectedPlayer, startingPlayer, playerA.GetComponent<Rigidbody>());
+                        goingToVertex = false;
                     }
                     else
                     {
-                        spawnPos = prevChain.chainEnd.position;
+                        Rigidbody lastChain = prevChain.chainEnd;
+                        prevChain = null;
+                        playerB.GetComponent<ConfigurableJoint>().connectedBody = ChainSpawnHelper(halfChainNum, playerB.position, lastChain.position, connectedPlayer, startingPlayer, lastChain);
+                        prevChain.chainEnd.position = playerB.position;
                     }
-                    
-                    GameObject newChain = Instantiate(chain, spawnPos, rotation);
-                    playerA.parent.GetComponent<ChainLink>().connectedChains.Add(newChain);
-                    playerB.parent.GetComponent<ChainLink>().connectedChains.Add(newChain);
-                    ConnectConfigJoints chainJoints = newChain.GetComponent<ConnectConfigJoints>();
-
-                    if (prevChain == null)
-                    {
-                        chainJoints.InitializeChain(playerA.GetComponent<Rigidbody>());
-                    }
-                    else
-                    {
-                        chainJoints.InitializeChain(prevChain.chainEnd);
-                    }
-
-                    prevChain = chainJoints;
-                    newChain.GetComponent<NetworkObject>().Spawn();
                 }
-                playerB.GetComponent<ConfigurableJoint>().connectedBody = prevChain.chainEnd;
                 prevChain = null;
             }
         }
 
         OnSpawnCPUs?.Invoke(this, EventArgs.Empty);
         gameStarted = true;
+    }
+
+    Rigidbody ChainSpawnHelper(float halfChainNum, Vector3 targetAnchor, Vector3 startAnchor, ChainLink connectedPlayer, ChainLink startingPlayer, Rigidbody lastAnchor)
+    {
+        Vector3 direction = (targetAnchor - startAnchor).normalized;
+        Quaternion rotation = Quaternion.LookRotation(direction) * Quaternion.Euler(-90f, 0f, 0f);
+
+        for (int c = 0; c < (int)halfChainNum; c++)
+        {
+            Vector3 spawnPos = Vector3.zero;
+            if (prevChain == null)
+            {
+                spawnPos = startAnchor;
+            }
+            else
+            {
+                spawnPos = prevChain.chainEnd.position;
+            }
+
+            GameObject newChain = Instantiate(chain, spawnPos, rotation);
+            startingPlayer.ownedChains.Add(newChain);
+            connectedPlayer.otherChains.Add(newChain);
+            ConnectConfigJoints chainJoints = newChain.GetComponent<ConnectConfigJoints>();
+
+            if (prevChain == null)
+            {
+                chainJoints.InitializeChain(lastAnchor.GetComponent<Rigidbody>());
+            }
+            else
+            {
+                chainJoints.InitializeChain(prevChain.chainEnd);
+            }
+
+            prevChain = chainJoints;
+            newChain.GetComponent<NetworkObject>().Spawn();
+        }
+
+        Rigidbody chainEnd = prevChain.chainEnd;
+        return chainEnd;
     }
 
     // Update is called once per frame
@@ -295,6 +327,6 @@ public class GameManager : NetworkBehaviour
     [Rpc(SendTo.ClientsAndHost)]
     void UpdateChainClientRpc(float chainLength, int playerId)
     {
-        gamePlayers[playerId].transform.GetComponent<ChainLink>().SetDistance(chainAmount);
+        //gamePlayers[playerId].transform.GetComponent<ChainLink>().SetDistance(chainAmount);
     }
 }

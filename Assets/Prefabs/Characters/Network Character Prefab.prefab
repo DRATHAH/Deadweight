@@ -200,13 +200,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ChainLink
   ShowTopMostFoldoutHeaderGroup: 1
   chainDistance: 5
-  tensionLimit: 14
-  correctionForce: 10
+  tensionLimit: 100
+  correctionForce: 20
   anchors:
   - {fileID: 557645222713284880}
   - {fileID: 6746092852436270754}
   attachedPlayer: {fileID: 0}
-  connectedChains: []
+  ownedChains: []
+  otherChains: []
 --- !u!114 &1150953265426360573
 MonoBehaviour:
   m_ObjectHideFlags: 0
