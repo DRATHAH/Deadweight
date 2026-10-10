@@ -3400,7 +3400,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Hazard
   ShowTopMostFoldoutHeaderGroup: 1
   damage: 3
-  knockbackForce: 25
+  knockbackForce: 15
 --- !u!65 &96261697
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -35118,7 +35118,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Hazard
   ShowTopMostFoldoutHeaderGroup: 1
   damage: 3
-  knockbackForce: 25
+  knockbackForce: 15
 --- !u!114 &1074831504
 MonoBehaviour:
   m_ObjectHideFlags: 0

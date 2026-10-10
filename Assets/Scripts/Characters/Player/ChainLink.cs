@@ -60,7 +60,7 @@ public class ChainLink : NetworkBehaviour
             }
             target = new Vector3(attachedStart.position.x, attachedPlayer.position.y, attachedStart.position.z);
             direction = (target - attachedPlayer.position).normalized;
-            attachedPlayer.GetComponent<Rigidbody>().AddForce(direction * force);
+            //attachedPlayer.GetComponent<Rigidbody>().AddForce(direction * force);
         }
     }
 
