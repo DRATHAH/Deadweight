@@ -231,6 +231,11 @@ public class Player : DamageableCharacter
 
     public override IEnumerator Recover()
     {
+        if (IsServer)
+        {
+            canMove.Value = false;
+        }
+
         JointDrive jointDrive = mainJoint.slerpDrive;
         jointDrive.positionSpring = 0;
         mainJoint.slerpDrive = jointDrive;
@@ -241,7 +246,6 @@ public class Player : DamageableCharacter
         }
 
         isActiveRagdoll = false;
-        canMove.Value = false;
 
         yield return new WaitForSeconds(2);
         if (targetable)
