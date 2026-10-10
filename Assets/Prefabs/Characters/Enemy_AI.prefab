@@ -2214,8 +2214,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ChainLink
   ShowTopMostFoldoutHeaderGroup: 1
   chainDistance: 5
-  tensionLimit: 15
-  correctionForce: 20
+  tensionLimit: 20
+  correctionForce: 15
   anchors:
   - {fileID: 8450692282586866633}
   - {fileID: 1355335447564779263}
