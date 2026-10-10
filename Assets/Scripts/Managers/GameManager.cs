@@ -66,6 +66,7 @@ public class GameManager : NetworkBehaviour
 
     private void SceneManager_OnLoadEventCompleted(string sceneName, LoadSceneMode loadSceneMode, List<ulong> clientsCompleted, List<ulong> clientsTimedOut)
     {
+        int maxCpus = Mathf.Clamp(DeadweightNetworkManager.instance.maxPlayers - NetworkManager.Singleton.ConnectedClients.Count, 0, 2);
         for (int i = 0; i < spawns.Count; i++)
         {
             if (i < NetworkManager.Singleton.ConnectedClientsIds.Count)
@@ -75,11 +76,15 @@ public class GameManager : NetworkBehaviour
             }
             else if (DeadweightNetworkManager.instance.GetCpuState())
             {
-                GameObject enemy = Instantiate(CPUPrefab, spawns[i].position, spawns[i].rotation);
-                NetworkObject enemyObj = enemy.GetComponent<NetworkObject>();
-                enemyObj.Spawn(true);
-                CPUs.Add(enemy.GetComponent<EnemyAI>());
-                gamePlayers.Add(enemy);
+                if (maxCpus != 0)
+                {
+                    GameObject enemy = Instantiate(CPUPrefab, spawns[i].position, spawns[i].rotation);
+                    NetworkObject enemyObj = enemy.GetComponent<NetworkObject>();
+                    enemyObj.Spawn(true);
+                    CPUs.Add(enemy.GetComponent<EnemyAI>());
+                    gamePlayers.Add(enemy);
+                    maxCpus--;
+                }
             }
         }
 
