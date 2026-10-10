@@ -297,4 +297,9 @@ public class Player : DamageableCharacter
 
         isActiveRagdoll = false;
     }
+
+    public override void OnDestroy()
+    {
+        NetworkManager.Singleton.OnClientDisconnectCallback -= NetworkManager_OnClientDisconnectCallback;
+    }
 }

@@ -211,6 +211,19 @@ public class GameManager : NetworkBehaviour
                 UpdateCamera();
             }
         }
+
+        int playersAlive = 0;
+        foreach(GameObject player in gamePlayers)
+        {
+            if (player.GetComponent<DamageableCharacter>().targetable)
+            {
+                playersAlive++;
+            }
+        }
+        if (playersAlive <= 1)
+        {
+            EndGame();
+        }
     }
 
     [Rpc(SendTo.ClientsAndHost)]
