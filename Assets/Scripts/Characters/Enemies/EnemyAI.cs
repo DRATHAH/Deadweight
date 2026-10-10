@@ -68,6 +68,7 @@ public class EnemyAI : DamageableCharacter
 
     private void FixedUpdate()
     {
+        rb.linearVelocity = Vector3.ClampMagnitude(rb.linearVelocity, agent.speed * 2);
         if (targetable)
         {
             agent.nextPosition = transform.position;

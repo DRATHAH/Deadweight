@@ -8,7 +8,7 @@ public class ConnectConfigJoints : MonoBehaviour
     public void InitializeChain(Rigidbody attachedBody)
     {
         ConfigurableJoint joint = attachedBody.GetComponent<ConfigurableJoint>();
-        transform.position += attachedBody.transform.position - chainStart.position;
+        transform.position = attachedBody.transform.position;
 
         chainStart.GetComponent<ConfigurableJoint>().connectedBody = attachedBody;
     }

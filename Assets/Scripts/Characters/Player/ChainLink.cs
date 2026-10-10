@@ -10,7 +10,8 @@ public class ChainLink : NetworkBehaviour
     public ConfigurableJoint[] anchors;
 
     public Transform attachedPlayer;
-    public List<GameObject> connectedChains;
+    public List<GameObject> ownedChains;
+    public List<GameObject> otherChains;
 
     public void SetDistance(float distance)
     {
@@ -32,7 +33,7 @@ public class ChainLink : NetworkBehaviour
         //CorrectPosition();
     }
 
-    void CorrectPosition(float tension, int chainIndex, bool lastChain)
+    void CorrectPosition(float tension, Transform chain, bool lastChain)
     {
         if (attachedPlayer)
         {
@@ -46,21 +47,11 @@ public class ChainLink : NetworkBehaviour
                 attachedPlayer.GetComponent<Rigidbody>().AddForce(-direction * force);
             }*/
 
-            Transform chainStart = connectedChains[chainIndex].transform;
+            Transform chainStart = chain;
             Vector3 target = new Vector3(chainStart.position.x, transform.position.y, chainStart.position.z);
             Vector3 direction = (target - transform.position).normalized;
             float force = correctionForce * (tension - tensionLimit);
             GetComponent<Rigidbody>().AddForce(direction * force);
-
-            ChainLink attachedLink = attachedPlayer.GetComponent<ChainLink>();
-            Transform attachedStart = attachedLink.connectedChains[0].transform;
-            if (!lastChain)
-            {
-                attachedStart = attachedLink.connectedChains[attachedLink.connectedChains.Count-1].transform;
-            }
-            target = new Vector3(attachedStart.position.x, attachedPlayer.position.y, attachedStart.position.z);
-            direction = (target - attachedPlayer.position).normalized;
-            attachedPlayer.GetComponent<Rigidbody>().AddForce(direction * force);
         }
     }
 
@@ -68,29 +59,29 @@ public class ChainLink : NetworkBehaviour
     {
         float tension = 0;
 
-        for (int i = 0; i < 3; i++)
+        foreach(GameObject chain in ownedChains)
         {
-            ConnectConfigJoints chainJoints = connectedChains[i].GetComponent<ConnectConfigJoints>();
+            ConnectConfigJoints chainJoints = chain.GetComponent<ConnectConfigJoints>();
             tension += (chainJoints.chainStart.position - chainJoints.chainEnd.position).magnitude;
         }
         if (tension >= tensionLimit)
         {
             Debug.Log(tension);
-            CorrectPosition(tension, 0, false);
+            CorrectPosition(tension, ownedChains[0].transform, false);
             return;
         }
 
         tension = 0;
 
-        for (int i = 3; i < connectedChains.Count; i++)
+        foreach (GameObject chain in otherChains)
         {
-            ConnectConfigJoints chainJoints = connectedChains[i].GetComponent<ConnectConfigJoints>();
+            ConnectConfigJoints chainJoints = chain.GetComponent<ConnectConfigJoints>();
             tension += (chainJoints.chainStart.position - chainJoints.chainEnd.position).magnitude;
         }
         if (tension >= tensionLimit)
         {
             Debug.Log(tension);
-            CorrectPosition(tension, connectedChains.Count-1, true);
+            CorrectPosition(tension, otherChains[otherChains.Count-1].transform, true);
             return;
         }
     }
