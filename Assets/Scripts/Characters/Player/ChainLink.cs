@@ -51,6 +51,7 @@ public class ChainLink : NetworkBehaviour
             Vector3 target = new Vector3(chainStart.position.x, transform.position.y, chainStart.position.z);
             Vector3 direction = (target - transform.position).normalized;
             float force = correctionForce * (tension - tensionLimit);
+            force = Mathf.Clamp(force, 0, correctionForce * 2);
             GetComponent<Rigidbody>().AddForce(direction * force);
         }
     }
